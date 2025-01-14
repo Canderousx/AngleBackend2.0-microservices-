@@ -20,13 +20,9 @@ import org.springframework.web.bind.annotation.RestController;
 @RequestMapping("/accounts/")
 public class AccountInteractions {
 
-    private final AccountRetrievalService accountRetrievalService;
-
     private final SubscriptionRetrievalService subscriptionRetrievalService;
 
     private final SubscriptionManagementService subscriptionManagementService;
-
-
 
 
     @RequestMapping(value = "subscribe",method = RequestMethod.POST)

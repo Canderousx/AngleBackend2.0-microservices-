@@ -36,9 +36,6 @@ import java.util.List;
 @EnableWebSecurity
 @EnableMethodSecurity
 @EnableAsync(proxyTargetClass = true)
-@EnableSpringDataWebSupport(
-        pageSerializationMode = EnableSpringDataWebSupport.PageSerializationMode.VIA_DTO
-)
 public class SecurityConfig implements WebMvcConfigurer {
 
 

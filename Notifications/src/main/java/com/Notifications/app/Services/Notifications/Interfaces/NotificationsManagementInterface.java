@@ -14,5 +14,7 @@ public interface NotificationsManagementInterface {
 
     void removeNotification(String id);
 
+    void removeAll(String ownerId);
+
 
 }

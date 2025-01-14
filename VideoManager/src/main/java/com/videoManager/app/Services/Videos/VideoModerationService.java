@@ -47,8 +47,6 @@ public class VideoModerationService implements VideoModerationInterface {
 
     private final NotificationGeneratorService notificationGenerator;
 
-    private final CacheService cacheService;
-
     private final KafkaSenderService kafkaSenderService;
 
     private boolean doesVideoExist(String videoId){

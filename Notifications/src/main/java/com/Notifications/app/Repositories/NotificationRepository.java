@@ -19,8 +19,6 @@ public interface NotificationRepository extends JpaRepository<Notification,Strin
     @Query(value = "SELECT owner_id FROM notification WHERE id = :id",nativeQuery = true)
     String getOwnerId(@Param("id")String id);
 
-
-
     @Modifying
     @Transactional
     @Query(value = "UPDATE notification SET seen = true WHERE id = :noteId",nativeQuery = true)
@@ -33,5 +31,10 @@ public interface NotificationRepository extends JpaRepository<Notification,Strin
 
     @Query(value = "SELECT n FROM Notification n WHERE n.ownerId = :accountId ORDER BY n.datePublished DESC")
     Notification getLatestNotification(@Param("accountId") String accountId);
+
+    @Transactional
+    @Modifying
+    @Query(value = "DELETE FROM Notification WHERE owner_id = :accountId AND for_user = true",nativeQuery = true)
+    void clearAll(@Param("accountId")String accountId);
 
 }

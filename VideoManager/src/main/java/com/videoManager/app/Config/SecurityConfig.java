@@ -7,6 +7,7 @@ import com.videoManager.app.Models.EnvironmentVariables;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.data.web.config.EnableSpringDataWebSupport;
+import org.springframework.http.CacheControl;
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
@@ -23,13 +24,11 @@ import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 import java.io.File;
 import java.util.Arrays;
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 
 @Configuration
 @EnableWebSecurity
 @EnableMethodSecurity
-@EnableSpringDataWebSupport(
-        pageSerializationMode = EnableSpringDataWebSupport.PageSerializationMode.VIA_DTO
-)
 public class SecurityConfig implements WebMvcConfigurer {
 
     private final EnvironmentVariables environmentVariables;
@@ -41,7 +40,8 @@ public class SecurityConfig implements WebMvcConfigurer {
     @Override
     public void addResourceHandlers(ResourceHandlerRegistry registry) {
         registry.addResourceHandler("/media/thumbnails/**")
-                .addResourceLocations("file:/"+environmentVariables.getThumbnailsPath());
+                .addResourceLocations("file:/"+environmentVariables.getThumbnailsPath())
+                .setCacheControl(CacheControl.maxAge(30, TimeUnit.DAYS).cachePublic());
         registry.addResourceHandler("/videos/watch/**")
                 .addResourceLocations("file:/"+environmentVariables.getHlsPath());
     }

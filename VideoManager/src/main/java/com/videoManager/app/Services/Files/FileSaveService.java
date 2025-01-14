@@ -4,6 +4,8 @@ package com.videoManager.app.Services.Files;
 import com.videoManager.app.Config.Exceptions.FileStoreException;
 import com.videoManager.app.Models.EnvironmentVariables;
 import com.videoManager.app.Services.Files.Interfaces.FilesSaveInterface;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -16,20 +18,17 @@ import java.nio.file.Paths;
 import java.util.UUID;
 
 @Service
+@Slf4j
+@RequiredArgsConstructor
 public class FileSaveService implements FilesSaveInterface {
 
-    private final Logger logger = LogManager.getLogger(FileDeleterService.class);
 
     private final EnvironmentVariables environmentVariables;
 
-    @Autowired
-    public FileSaveService(EnvironmentVariables environmentVariables){
-        this.environmentVariables = environmentVariables;
-    }
     @Override
     public String saveRawFile(MultipartFile file) throws FileStoreException {
         if(file.isEmpty()){
-            logger.error("File sent to save is empty!");
+            log.error("File sent to save is empty!");
             throw new FileStoreException("File sent to save is empty!");
         };
         String savedFileName = UUID.randomUUID()+"_"+UUID.randomUUID()+".mp4";
@@ -39,15 +38,15 @@ public class FileSaveService implements FilesSaveInterface {
                 .normalize()
                 .toAbsolutePath();
         if(!destinationFile.getParent().equals(Paths.get(environmentVariables.getRawFilesPath()).toAbsolutePath())){
-            logger.error("File cannot be saved outside rawFiles directory!");
+            log.error("File cannot be saved outside rawFiles directory!");
             throw new FileStoreException("File cannot be saved outside rawFiles directory!");
         }
         try {
             file.transferTo(destinationFile);
-            logger.info("File has been saved!");
+            log.info("File has been saved!");
             return destinationFile.toString();
         } catch (IOException e) {
-            logger.error("Couldn't save the file...");
+            log.error("Couldn't save the file...");
             throw new FileStoreException("File cannot be saved outside rawFiles directory!");
         }
     }

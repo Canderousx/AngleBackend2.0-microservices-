@@ -7,6 +7,7 @@ import com.authService.app.Models.Records.ServerMessage;
 import com.authService.app.Services.Account.AccountManagementService;
 import com.authService.app.Services.Account.SignUpService;
 import com.fasterxml.jackson.core.JsonProcessingException;
+import lombok.RequiredArgsConstructor;
 import org.apache.coyote.BadRequestException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -15,19 +16,12 @@ import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping(value = "/signUp")
+@RequiredArgsConstructor
 public class SignUp {
 
     private final SignUpService signUpService;
 
     private final AccountManagementService accountManagementService;
-
-    @Autowired
-    public SignUp(SignUpService signUpService,
-                  AccountManagementService accountManagementService) {
-
-        this.signUpService = signUpService;
-        this.accountManagementService = accountManagementService;
-    }
 
     @RequestMapping(value = "",method = RequestMethod.POST)
     public ResponseEntity<ServerMessage> signUp(@RequestBody @Validated NewUserRecord newUserRecord) throws CredentialsExistException, AccountNotFoundException, JsonProcessingException {

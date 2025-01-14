@@ -4,6 +4,7 @@ import com.videoManager.app.Models.Tag;
 import com.videoManager.app.Models.Video;
 import com.videoManager.app.Repositories.TagRepository;
 import com.videoManager.app.Services.Tags.Interface.TagSaverInterface;
+import lombok.RequiredArgsConstructor;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -14,20 +15,12 @@ import java.util.HashSet;
 import java.util.Set;
 
 @Service
+@RequiredArgsConstructor
 public class TagSaverService implements TagSaverInterface {
 
-    private TagRepository tagRepository;
-
-    private final CacheManager cacheManager;
-
-    private final Logger logger = LogManager.getLogger(TagSaverService.class);
+    private final TagRepository tagRepository;
 
 
-    @Autowired
-    public TagSaverService(TagRepository tagRepository, CacheManager cacheManager) {
-        this.tagRepository = tagRepository;
-        this.cacheManager = cacheManager;
-    }
     @Override
     public Set<Tag> setTags(VideoDetails metaData) {
         Set<Tag> tags = new HashSet<>();
@@ -36,9 +29,6 @@ public class TagSaverService implements TagSaverInterface {
                 tagRepository.save(tag);
             }
             tagRepository.findByName(tag.getName()).ifPresent(tags::add);
-        }
-        if(tags.isEmpty()){
-            logger.warn("Warning: Video without any tags detected!");
         }
         return tags;
     }

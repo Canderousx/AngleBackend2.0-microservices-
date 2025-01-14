@@ -6,23 +6,19 @@ import com.authService.app.Models.Records.ServerMessage;
 import com.authService.app.Services.Account.AccountManagementService;
 import com.authService.app.Services.Email.MaintenanceMailService;
 import com.fasterxml.jackson.core.JsonProcessingException;
+import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping(value = "/signUp")
+@RequiredArgsConstructor
 public class PasswordRecovery {
 
     private final MaintenanceMailService maintenanceMailService;
 
     private final AccountManagementService accountManagementService;
-
-    @Autowired
-    public PasswordRecovery(MaintenanceMailService maintenanceMailService, AccountManagementService accountManagementService) {
-        this.maintenanceMailService = maintenanceMailService;
-        this.accountManagementService = accountManagementService;
-    }
 
     @RequestMapping(value = "/recoverPassword",method = RequestMethod.POST)
     public ResponseEntity<ServerMessage>recoverPassword(@RequestParam String email) throws JsonProcessingException {

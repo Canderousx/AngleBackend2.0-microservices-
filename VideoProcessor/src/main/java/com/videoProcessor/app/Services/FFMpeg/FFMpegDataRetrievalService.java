@@ -1,14 +1,14 @@
 package com.videoProcessor.app.Services.FFMpeg;
 import com.videoProcessor.app.Services.FFMpeg.Interfaces.FFMpegDataRetrievalInterface;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.stereotype.Service;
 import java.io.*;
 import java.nio.charset.StandardCharsets;
 @Service
+@Slf4j
 public class FFMpegDataRetrievalService implements FFMpegDataRetrievalInterface {
-
-    private final Logger logger = LogManager.getLogger(FFMpegDataRetrievalService.class);
 
     private static String inputStreamToString(InputStream inputStream) throws IOException {
         StringBuilder textBuilder = new StringBuilder();
@@ -28,7 +28,7 @@ public class FFMpegDataRetrievalService implements FFMpegDataRetrievalInterface 
                 "format=duration", "-of", "default=noprint_wrappers=1:nokey=1", rawPath);
         Process process = builder.start();
         String output = inputStreamToString(process.getInputStream());
-        logger.info("Video duration: "+output);
+        log.info("Video duration: "+output);
         process.waitFor();
         return Double.parseDouble(output.trim());
     }

@@ -3,6 +3,7 @@ package com.Notifications.app.Services.Notifications;
 import com.Notifications.app.Models.Notification;
 import com.Notifications.app.Repositories.NotificationRepository;
 import com.Notifications.app.Services.Notifications.Interfaces.NotificationsRetrievalInterface;
+import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -12,13 +13,10 @@ import org.springframework.stereotype.Service;
 
 
 @Service
+@RequiredArgsConstructor
 public class NotificationsRetrievalService implements NotificationsRetrievalInterface {
 
     private final NotificationRepository notificationRepository;
-
-    public NotificationsRetrievalService(NotificationRepository notificationRepository) {
-        this.notificationRepository = notificationRepository;
-    }
 
 
     @Override

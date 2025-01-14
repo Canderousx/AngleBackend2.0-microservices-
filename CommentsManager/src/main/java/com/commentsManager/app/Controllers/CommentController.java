@@ -4,8 +4,7 @@ import com.commentsManager.app.Models.Comment;
 import com.commentsManager.app.Models.Records.ServerMessage;
 import com.commentsManager.app.Services.Comments.CommentManagementService;
 import com.commentsManager.app.Services.Comments.CommentRetrievalService;
-import jakarta.servlet.http.HttpServletResponse;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -14,17 +13,11 @@ import java.io.IOException;
 
 @RestController
 @RequestMapping(value = "/comments")
+@RequiredArgsConstructor
 public class CommentController {
     private final CommentRetrievalService commentRetrievalService;
 
     private final CommentManagementService commentManagementService;
-
-    @Autowired
-    public CommentController(CommentRetrievalService commentRetrievalService,
-                             CommentManagementService commentManagementService){
-        this.commentRetrievalService = commentRetrievalService;
-        this.commentManagementService = commentManagementService;
-    }
 
     @RequestMapping(value = "/getComment",method = RequestMethod.GET)
     public Comment getComment(@RequestParam String id) throws MediaNotFoundException {

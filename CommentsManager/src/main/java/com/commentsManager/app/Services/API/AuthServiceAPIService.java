@@ -2,6 +2,7 @@ package com.commentsManager.app.Services.API;
 
 import com.commentsManager.app.Models.Records.Account;
 import com.commentsManager.app.Services.API.Interfaces.AuthServiceAPI;
+import lombok.RequiredArgsConstructor;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.data.domain.Page;
@@ -11,15 +12,12 @@ import org.springframework.web.client.RestClient;
 
 
 @Service
+@RequiredArgsConstructor
 public class AuthServiceAPIService implements AuthServiceAPI {
 
     private final RestClient restClient;
 
     private final String ipaddress="http://localhost:7701";
-
-    public AuthServiceAPIService(RestClient restClient) {
-        this.restClient = restClient;
-    }
 
 
     @Override

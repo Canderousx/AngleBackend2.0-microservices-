@@ -5,6 +5,7 @@ import com.videoManager.app.Models.Video;
 import com.videoManager.app.Repositories.TagRepository;
 import com.videoManager.app.Repositories.VideoRepository;
 import com.videoManager.app.Services.Videos.Interfaces.VideoSearchInterface;
+import lombok.RequiredArgsConstructor;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -20,18 +21,12 @@ import java.util.Optional;
 
 
 @Service
+@RequiredArgsConstructor
 public class VideoSearchService implements VideoSearchInterface {
 
     private final VideoRepository videoRepository;
 
     private final TagRepository tagRepository;
-
-    @Autowired
-    public VideoSearchService(VideoRepository videoRepository,
-                              TagRepository tagRepository) {
-        this.videoRepository = videoRepository;
-        this.tagRepository = tagRepository;
-    }
 
     @Override
     public List<VideoProjection> getVideosByTag(String tag) {
@@ -43,10 +38,10 @@ public class VideoSearchService implements VideoSearchInterface {
     }
 
     @Override
-    @Cacheable(value = "found_videos",key = "#query"+"__"+"#page"+"__"+"#pageSize")
+    @Cacheable(value = "video_cache",key = "#query + '__' + #page +'__' + #pageSize")
     public Page<VideoProjection> findVideos(String query, int page, int pageSize) {
         Pageable pageable = PageRequest.of(page,pageSize);
-        return videoRepository.findByNameContainingOrTagsNameContaining(query,query,query,pageable);
+        return videoRepository.findByNameContainingOrTagsNameContaining(query,query,pageable);
     }
 
     @Override

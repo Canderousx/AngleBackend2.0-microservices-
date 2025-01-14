@@ -5,8 +5,10 @@ import com.Notifications.app.Models.Notification;
 import com.Notifications.app.Models.Records.NotificationRecord;
 import com.Notifications.app.Repositories.NotificationRepository;
 import com.Notifications.app.Services.Notifications.Interfaces.NotificationsManagementInterface;
+import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.stereotype.Service;
 
 import java.security.Principal;
@@ -54,5 +56,10 @@ public class NotificationsManagementService implements NotificationsManagementIn
     @Override
     public void removeNotification(String id) {
         notificationRepository.deleteById(id);
+    }
+
+    @Override
+    public void removeAll(String ownerId) {
+        notificationRepository.clearAll(ownerId);
     }
 }

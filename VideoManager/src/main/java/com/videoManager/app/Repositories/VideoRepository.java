@@ -138,8 +138,8 @@ public interface VideoRepository extends JpaRepository<Video, String> {
     @Query(value = "SELECT DISTINCT LOWER(v.name) FROM video v WHERE v.isbanned = false AND LOWER(v.name) LIKE CONCAT(:vName, '%') ORDER BY LOWER(v.name) ASC", nativeQuery = true)
     List<String> findNameContaining(@Param("vName") String vName);
 
-    @Query(value = "SELECT DISTINCT v.* FROM video v LEFT JOIN video_tags vt ON v.id = vt.video_id LEFT JOIN tag t ON vt.tag_id = t.id JOIN account a ON v.authorId = a.id WHERE v.isbanned = false AND v.name LIKE %:name% OR t.name LIKE %:tagName% OR a.username LIKE %:authorName% ", nativeQuery = true)
-    Page<VideoProjection> findByNameContainingOrTagsNameContaining(@Param("name") String name, @Param("tagName") String tagName, @Param("authorName") String authorName, Pageable pageable);
+    @Query(value = "SELECT DISTINCT v.* FROM video v LEFT JOIN video_tags vt ON v.id = vt.video_id LEFT JOIN tag t ON vt.tag_id = t.id WHERE v.isbanned = false AND v.name LIKE %:name% OR t.name LIKE %:tagName%", nativeQuery = true)
+    Page<VideoProjection> findByNameContainingOrTagsNameContaining(@Param("name") String name, @Param("tagName") String tagName, Pageable pageable);
 
 
     @Query("""

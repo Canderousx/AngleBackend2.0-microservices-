@@ -13,6 +13,7 @@ import com.videoManager.app.Services.API.AuthServiceAPIService;
 import com.videoManager.app.Services.Cache.CacheService;
 import com.videoManager.app.Services.Cache.PageWrapper;
 import com.videoManager.app.Services.Videos.Interfaces.VideoRetrievalInterface;
+import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.domain.Page;
@@ -29,6 +30,7 @@ import java.util.List;
 import java.util.Set;
 
 @Service
+@RequiredArgsConstructor
 public class VideoRetrievalService implements VideoRetrievalInterface {
 
     private final VideoRepository videoRepository;
@@ -38,15 +40,6 @@ public class VideoRetrievalService implements VideoRetrievalInterface {
     private final AuthServiceAPIService authService;
 
     private final CacheService cacheService;
-
-    @Autowired
-    public VideoRetrievalService(VideoRepository videoRepository, VideoRatingRepository videoRatingRepository,
-                                 AuthServiceAPIService authServiceAPIService, CacheService cacheService) {
-        this.videoRepository = videoRepository;
-        this.videoRatingRepository = videoRatingRepository;
-        this.authService = authServiceAPIService;
-        this.cacheService = cacheService;
-    }
 
     private void addRandomVideos(List<VideoRecord>currentList, String currentId){
         if(currentList.size() < 10){
@@ -72,8 +65,8 @@ public class VideoRetrievalService implements VideoRetrievalInterface {
 
     @Override
     public Page<VideoRecord> getUserVideos(String userId, int page, int pageSize) {
-        PageWrapper<VideoRecord> userVideos = cacheService.getPageWithCache(userId+"__"+page+"__"+pageSize+"__user_videos",videoRepository::findByAuthorId);
-        return userVideos.toPage();
+        Pageable pageable = PageRequest.of(page,pageSize);
+        return videoRepository.findByAuthorId(userId,pageable);
     }
 
     @Override
@@ -150,6 +143,7 @@ public class VideoRetrievalService implements VideoRetrievalInterface {
     }
 
     @Override
+    @Cacheable(value = "video_cache",key = "'most_popular'")
     public List<VideoRecord> getMostPopular() {
         int quantity = 4;
         return videoRepository.findMostPopular(quantity);
@@ -163,6 +157,7 @@ public class VideoRetrievalService implements VideoRetrievalInterface {
     }
 
     @Override
+    @Cacheable(value = "video_cache",key = "#videoId +'__similar_videos'")
     public List<VideoRecord> getSimilar(String videoId) throws MediaNotFoundException {
         List<VideoRecord>videos = new ArrayList<>();
         Video video = getRawVideo(videoId);

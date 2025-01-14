@@ -4,6 +4,7 @@ import com.videoProcessor.app.Models.Records.VideoProcessingData;
 import com.videoProcessor.app.Services.FFMpeg.Interfaces.FFMpegConverterInterface;
 import com.videoProcessor.app.Services.JsonUtils;
 import com.videoProcessor.app.Services.Kafka.KafkaSenderService;
+import lombok.RequiredArgsConstructor;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -18,6 +19,7 @@ import java.io.InputStreamReader;
 import java.util.concurrent.CompletableFuture;
 
 @Service
+@RequiredArgsConstructor
 public class FFMpegConverterService implements FFMpegConverterInterface {
 
     private final Logger logger = LogManager.getLogger(FFMpegConverterService.class);
@@ -25,13 +27,6 @@ public class FFMpegConverterService implements FFMpegConverterInterface {
     private final EnvironmentVariables environmentVariables;
 
     private final KafkaSenderService kafkaSenderService;
-
-
-    @Autowired
-    public FFMpegConverterService(EnvironmentVariables environmentVariables, KafkaSenderService kafkaSenderService) {
-        this.environmentVariables = environmentVariables;
-        this.kafkaSenderService = kafkaSenderService;
-    }
 
     private void conversionSuccessEvent(VideoProcessingData data){
         String json = JsonUtils.toJson(data);

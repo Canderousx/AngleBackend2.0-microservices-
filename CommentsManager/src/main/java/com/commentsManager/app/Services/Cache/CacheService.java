@@ -1,6 +1,7 @@
 package com.commentsManager.app.Services.Cache;
 
 import com.commentsManager.app.Services.Cache.Interfaces.TriFunction;
+import lombok.RequiredArgsConstructor;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.cache.CacheManager;
@@ -16,6 +17,7 @@ import java.util.function.BiFunction;
 import java.util.function.Function;
 
 @Service
+@RequiredArgsConstructor
 public class CacheService {
 
     private final RedisTemplate<String,Object>redisTemplate;
@@ -23,11 +25,6 @@ public class CacheService {
     private final CacheManager cacheManager;
 
     private final Logger logger = LogManager.getLogger(CacheService.class);
-
-    public CacheService(RedisTemplate<String, Object> redisTemplate, CacheManager cacheManager) {
-        this.redisTemplate = redisTemplate;
-        this.cacheManager = cacheManager;
-    }
 
     public void evictCache(String value, String keyPattern){
         String pattern = value+"::"+keyPattern;

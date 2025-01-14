@@ -20,6 +20,12 @@ public class WebSocketController {
         notificationsManagementService.markAsSeen(notificationId,principal);
     }
 
+    @MessageMapping("/clearAllNotifications")
+    public void clearNotifications(Principal principal){
+        String userId = principal.getName();
+        notificationsManagementService.removeAll(userId);
+    }
+
 
 
 }

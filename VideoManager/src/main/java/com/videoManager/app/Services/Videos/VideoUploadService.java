@@ -41,8 +41,6 @@ public class VideoUploadService implements VideoUploadInterface {
 
     private final EnvironmentVariables environmentVariables;
 
-    private final CacheService cacheService;
-
 
 
     @Override
@@ -74,12 +72,7 @@ public class VideoUploadService implements VideoUploadInterface {
         video.setPlaylistName(vpf.playlistName());
         video.setProcessing(false);
         videoRepository.save(video);
-        if(video.getThumbnail() == null){
-            notificationGenerator.videoLacksMetadata(
-                    video.getAuthorId(),
-                    video.getId()
-            );
-        }else{
+        if(video.getThumbnail() != null){
             notificationGenerator.videoProcessingFinished(
                     video.getAuthorId(),
                     video.getName(),

@@ -27,14 +27,16 @@ public class NotificationGeneratorService implements NotificationGenerator {
     @Override
     public void newCommentNotification(CommentNotificationData commentNotificationData) {
         String videoAuthorId = videoRetrievalService.getAuthorId(commentNotificationData.videoId());
-        sendNotification(new NotificationRecord(
-                videoAuthorId,
-                commentNotificationData.authorUsername()+" has just commented your video!",
-                null,
-                "/api/auth/accounts/media/getAvatar?userId="+commentNotificationData.authorId(),
-                "/watch?v="+commentNotificationData.videoId(),
-                true
-        ));
+        if(!commentNotificationData.authorId().equals(videoAuthorId)){
+            sendNotification(new NotificationRecord(
+                    videoAuthorId,
+                    commentNotificationData.authorUsername()+" has just commented your video!",
+                    null,
+                    "/api/auth/accounts/media/getAvatar?userId="+commentNotificationData.authorId(),
+                    "/watch?v="+commentNotificationData.videoId(),
+                    true
+            ));
+        }
     }
 
     @Override

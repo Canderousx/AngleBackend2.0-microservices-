@@ -13,6 +13,7 @@ import lombok.RequiredArgsConstructor;
 import org.apache.coyote.BadRequestException;
 import org.springframework.core.io.Resource;
 import org.springframework.data.domain.Page;
+import org.springframework.http.CacheControl;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -22,6 +23,7 @@ import org.springframework.web.multipart.MultipartFile;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 
 @RequiredArgsConstructor
 @RestController
@@ -65,6 +67,7 @@ public class AccountData {
         Resource avatarFile = accountRetrievalService.getAvatar(userId);
         return ResponseEntity.ok()
                 .header(HttpHeaders.CONTENT_TYPE, Files.probeContentType(avatarFile.getFile().toPath()))
+                .cacheControl(CacheControl.maxAge(30, TimeUnit.DAYS).cachePublic())
                 .body(avatarFile);
     }
 

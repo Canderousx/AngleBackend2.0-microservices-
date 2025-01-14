@@ -8,16 +8,11 @@ import com.authService.app.Models.UserRole;
 import com.authService.app.Repositories.AccountRepository;
 import com.authService.app.Services.Account.Interfaces.AccountRetrieval;
 import com.authService.app.Services.Cache.CacheService;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.coyote.BadRequestException;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.core.io.FileSystemResource;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
-import org.springframework.data.redis.cache.RedisCacheManager;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
@@ -25,25 +20,16 @@ import java.io.File;
 import java.util.Optional;
 
 @Service
+@RequiredArgsConstructor
+@Slf4j
 public class AccountRetrievalService implements AccountRetrieval {
 
     private final AccountRepository accountRepository;
 
     private final CacheService cacheService;
 
-    private final RedisCacheManager cacheManager;
-
-    private final Logger logger = LogManager.getLogger(AccountRetrievalService.class);
-
     private final EnvironmentVariables environmentVariables;
 
-    @Autowired
-    public AccountRetrievalService(AccountRepository accountRepository, CacheService cacheService, RedisCacheManager cacheManager, EnvironmentVariables environmentVariables) {
-        this.accountRepository = accountRepository;
-        this.cacheService = cacheService;
-        this.cacheManager = cacheManager;
-        this.environmentVariables = environmentVariables;
-    }
 
     @Override
     @Cacheable(value = "auth_cache",key = "#id +'__username'")
@@ -142,7 +128,7 @@ public class AccountRetrievalService implements AccountRetrieval {
     public Account getRawAccountById(String id) {
         Optional<Account> accountOpt = accountRepository.findById(id);
         if(accountOpt.isEmpty()){
-            logger.info("Account "+id+" not found.");
+            log.info("Account "+id+" not found.");
             return null;
         }
         return accountOpt.get();
@@ -152,7 +138,7 @@ public class AccountRetrievalService implements AccountRetrieval {
     public Account getRawAccountByUsername(String username) {
         Optional<Account> accountOpt = accountRepository.findByUsername(username);
         if(accountOpt.isEmpty()){
-            logger.info("Account not found.");
+            log.info("Account not found.");
             return null;
         }
         return accountOpt.get();
@@ -162,7 +148,7 @@ public class AccountRetrievalService implements AccountRetrieval {
     public Account getRawAccountByEmail(String email) {
         Optional<Account> accountOpt = accountRepository.findByEmail(email);
         if(accountOpt.isEmpty()){
-            logger.info("Account not found.");
+            log.info("Account not found.");
             return null;
         }
         return accountOpt.get();

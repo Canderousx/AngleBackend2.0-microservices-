@@ -11,7 +11,6 @@ import static org.springframework.data.web.config.EnableSpringDataWebSupport.Pag
 
 @SpringBootApplication
 @EnableCaching
-@EnableSpringDataWebSupport(pageSerializationMode = VIA_DTO)
 public class NotificationsApplication {
 
 	public static void main(String[] args) {
