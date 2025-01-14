@@ -1,0 +1,40 @@
+server:
+  port: 7700
+
+
+spring:
+  application:
+    name: gateway-service
+  cloud:
+    gateway:
+      routes:
+        - id: auth-service
+          uri: http://localhost:7701
+          predicates:
+            - Path=/api/auth/**
+          filters:
+            - StripPrefix=2
+
+        - id: video-manager
+          uri: http://localhost:7702
+          predicates:
+            - Path=/api/video-manager/**
+          filters:
+            - StripPrefix=2
+
+        - id: notifications-service
+          uri: http://localhost:7703
+          predicates:
+            - Path=/api/notifications/**
+          filters:
+            - StripPrefix=2
+
+        - id: comments-manager
+          uri: http://localhost:7704
+          predicates:
+            - Path=/api/comments/**
+          filters:
+            - StripPrefix=2
+logging:
+  level:
+    org.springframework.cloud.gateway: DEBUG

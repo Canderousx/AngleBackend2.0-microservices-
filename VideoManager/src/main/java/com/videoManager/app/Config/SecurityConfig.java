@@ -1,0 +1,81 @@
+package com.videoManager.app.Config;
+
+import com.videoManager.app.Config.Filters.JwtAuthFilter;
+import com.videoManager.app.Config.Filters.RequestsLogger;
+import com.videoManager.app.Config.Services.JwtService;
+import com.videoManager.app.Models.EnvironmentVariables;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
+import org.springframework.data.web.config.EnableSpringDataWebSupport;
+import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
+import org.springframework.security.config.annotation.web.builders.HttpSecurity;
+import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
+import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
+import org.springframework.security.config.http.SessionCreationPolicy;
+import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+import org.springframework.web.cors.CorsConfiguration;
+import org.springframework.web.cors.CorsConfigurationSource;
+import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
+import org.springframework.web.servlet.config.annotation.ResourceHandlerRegistry;
+import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
+
+import java.io.File;
+import java.util.Arrays;
+import java.util.List;
+
+@Configuration
+@EnableWebSecurity
+@EnableMethodSecurity
+@EnableSpringDataWebSupport(
+        pageSerializationMode = EnableSpringDataWebSupport.PageSerializationMode.VIA_DTO
+)
+public class SecurityConfig implements WebMvcConfigurer {
+
+    private final EnvironmentVariables environmentVariables;
+
+    public SecurityConfig(EnvironmentVariables environmentVariables) {
+        this.environmentVariables = environmentVariables;
+    }
+
+    @Override
+    public void addResourceHandlers(ResourceHandlerRegistry registry) {
+        registry.addResourceHandler("/media/thumbnails/**")
+                .addResourceLocations("file:/"+environmentVariables.getThumbnailsPath());
+        registry.addResourceHandler("/videos/watch/**")
+                .addResourceLocations("file:/"+environmentVariables.getHlsPath());
+    }
+
+    @Bean
+    public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
+        return http
+                .csrf(AbstractHttpConfigurer::disable)
+                .authorizeHttpRequests(req -> req
+                        .requestMatchers("/videos/getBySubscribed").authenticated()
+                        .requestMatchers("/videos/**","/search/**","/manage/registerView","/media/thumbnails/**").permitAll()
+                        .anyRequest().authenticated()
+                )
+                .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+                .addFilterBefore(jwtAuthFilter(), UsernamePasswordAuthenticationFilter.class)
+                .addFilterBefore(requestsLogger(), JwtAuthFilter.class)
+                .build();
+    }
+
+    @Bean
+    JwtAuthFilter jwtAuthFilter(){
+        return new JwtAuthFilter(jwtService());
+    }
+
+    @Bean
+    RequestsLogger requestsLogger(){
+        return new RequestsLogger();
+    }
+
+    @Bean
+    JwtService jwtService(){
+        return new JwtService();
+    }
+
+
+
+}
