@@ -1,6 +1,6 @@
-package com.videoManager.app.Services.Email;
+package com.mailService.app.Services.Email;
 
-import com.videoManager.app.Services.Email.Interfaces.EmailSenderInterface;
+import com.mailService.app.Services.Email.Interfaces.EmailSenderInterface;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;

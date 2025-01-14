@@ -1,10 +1,10 @@
-package com.videoManager.app.Services.Email;
+package com.mailService.app.Services.Email;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.videoManager.app.Models.EnvironmentVariables;
-import com.videoManager.app.Models.MaintenanceMailData;
-import com.videoManager.app.Services.Email.Interfaces.MaintenanceMailInterface;
+import com.mailService.app.Models.EnvironmentVariables;
+import com.mailService.app.Models.MaintenanceMailData;
+import com.mailService.app.Services.Email.Interfaces.MaintenanceMailInterface;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 

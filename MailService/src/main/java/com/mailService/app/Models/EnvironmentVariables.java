@@ -1,4 +1,4 @@
-package com.videoManager.app.Models;
+package com.mailService.app.Models;
 
 
 

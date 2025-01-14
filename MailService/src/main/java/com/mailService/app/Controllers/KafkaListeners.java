@@ -1,8 +1,8 @@
-package com.videoManager.app.Controllers;
+package com.mailService.app.Controllers;
 
 
 import com.fasterxml.jackson.core.JsonProcessingException;
-import com.videoManager.app.Services.Email.MaintenanceMailService;
+import com.mailService.app.Services.Email.MaintenanceMailService;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;

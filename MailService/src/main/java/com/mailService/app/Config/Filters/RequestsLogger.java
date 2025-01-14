@@ -1,4 +1,4 @@
-package com.videoManager.app.Config.Filters;
+package com.mailService.app.Config.Filters;
 
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;

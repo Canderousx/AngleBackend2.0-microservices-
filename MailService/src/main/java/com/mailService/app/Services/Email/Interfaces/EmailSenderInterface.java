@@ -1,4 +1,4 @@
-package com.videoManager.app.Services.Email.Interfaces;
+package com.mailService.app.Services.Email.Interfaces;
 
 public interface EmailSenderInterface {
 

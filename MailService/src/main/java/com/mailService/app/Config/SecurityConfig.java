@@ -1,10 +1,8 @@
-package com.videoManager.app.Config;
+package com.mailService.app.Config;
 
-import com.videoManager.app.Config.Filters.RequestsLogger;
+import com.mailService.app.Config.Filters.RequestsLogger;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.mail.javamail.JavaMailSender;
-import org.springframework.scheduling.annotation.Async;
 import org.springframework.scheduling.annotation.EnableAsync;
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;

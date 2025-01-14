@@ -1,4 +1,4 @@
-package com.videoManager.app.Config;
+package com.mailService.app.Config;
 
 import org.apache.kafka.clients.admin.NewTopic;
 import org.springframework.context.annotation.Bean;

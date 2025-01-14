@@ -1,4 +1,4 @@
-package com.videoManager.app;
+package com.mailService.app;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;

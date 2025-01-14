@@ -1,6 +1,6 @@
-package com.videoManager.app.Config.Init;
+package com.mailService.app.Config.Init;
 
-import com.videoManager.app.Models.EnvironmentVariables;
+import com.mailService.app.Models.EnvironmentVariables;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.context.annotation.Bean;
