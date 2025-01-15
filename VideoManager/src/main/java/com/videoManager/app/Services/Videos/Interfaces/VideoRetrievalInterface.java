@@ -19,6 +19,8 @@ public interface VideoRetrievalInterface {
 
     Page<VideoRecord> getUserVideos(String userId, int page, int pageSize);
 
+    Page<VideoRecord> getCurrentUserVideos(int page, int pageSize);
+
     String getAuthorId(String videoId);
 
     Video getRawVideo(String videoId) throws MediaNotFoundException, IOException, ClassNotFoundException;

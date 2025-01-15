@@ -41,6 +41,11 @@ public class VideosData {
         return videoRetrievalService.getUserVideos(id,page,pageSize);
     }
 
+    @RequestMapping(value = "/getCurrentUserVideos",method = RequestMethod.GET)
+    public Page<VideoRecord>getCurrentUserVideos(@RequestParam int page, @RequestParam int pageSize){
+        return videoRetrievalService.getCurrentUserVideos(page,pageSize);
+    }
+
     @RequestMapping(value = "/getLatestVideos",method = RequestMethod.GET)
     public Page<VideoRecord>getLatestVideos(@RequestParam int page, @RequestParam int pageSize){
         return videoRetrievalService.getLatestVideos(page,pageSize);

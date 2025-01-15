@@ -22,6 +22,8 @@ public interface AccountRetrieval {
 
     boolean emailExists(String email);
 
+    long countSubscribers(String channelId);
+
     String getUsername(String id);
 
     FileSystemResource getAvatar(String id);

@@ -44,7 +44,14 @@ public class SecurityConfig implements WebMvcConfigurer {
         return http
                 .csrf(AbstractHttpConfigurer::disable)
                 .authorizeHttpRequests(req ->
-                        req.requestMatchers("/signIn","/signUp/**","/accounts/media/**","/accounts/getUserById", "/accounts/emailExists","/accounts/usernameExists").permitAll()
+                        req.requestMatchers(
+                                "/signIn",
+                                        "/signUp/**",
+                                        "/accounts/media/**",
+                                        "/accounts/getUserById",
+                                        "/accounts/emailExists",
+                                        "/accounts/usernameExists",
+                                        "/accounts/countSubscribers").permitAll()
                                 .anyRequest().authenticated())
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authenticationProvider(authenticationProvider())

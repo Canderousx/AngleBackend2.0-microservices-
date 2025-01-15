@@ -64,6 +64,18 @@ public class NotificationGeneratorService implements NotificationGenerator {
     }
 
     @Override
+    public void videoStillProcessing(String ownerId, String videoTitle, String videoId, String thumbnail) {
+        sendNotification(new NotificationRecord(
+                ownerId,
+                "Your video is still processing and it's temporarily unavailable. We'll let you know when it's ready.",
+                null,
+                thumbnail,
+                "/manager?id="+ownerId,
+                true
+        ));
+    }
+
+    @Override
     public void videoProcessingFinished(String ownerId,String videoTitle, String videoId, String thumbnail) {
         sendNotification(new NotificationRecord(
                 ownerId,

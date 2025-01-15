@@ -20,6 +20,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
 import java.nio.file.Files;
@@ -60,12 +61,19 @@ public class VideoRetrievalService implements VideoRetrievalInterface {
     @Override
     public Page<VideoRecord> getAllVideos(int page,int pageSize) {
         Pageable paginateSettings = PageRequest.of(page,pageSize, Sort.by("datePublished").descending());
-        return this.videoRepository.findAllByThumbnailIsNotNullAndNameIsNotNullAndIsBannedFalse(paginateSettings);
+        return this.videoRepository.findAllByThumbnailIsNotNullAndNameIsNotNullAndIsBannedFalseAndProcessingFalse(paginateSettings);
     }
 
     @Override
     public Page<VideoRecord> getUserVideos(String userId, int page, int pageSize) {
         Pageable pageable = PageRequest.of(page,pageSize);
+        return videoRepository.findByAuthorIdAndProcessingFalse(userId,pageable);
+    }
+
+    @Override
+    public Page<VideoRecord> getCurrentUserVideos(int page, int pageSize) {
+        Pageable pageable = PageRequest.of(page,pageSize,Sort.by("datePublished").descending());
+        String userId = SecurityContextHolder.getContext().getAuthentication().getName();
         return videoRepository.findByAuthorId(userId,pageable);
     }
 
@@ -110,7 +118,7 @@ public class VideoRetrievalService implements VideoRetrievalInterface {
     @Override
     public Page<VideoRecord> getLatestVideos(int page, int pageSize) {
         Pageable pageable = PageRequest.of(page,pageSize,Sort.by("datePublished").descending());
-        return videoRepository.findAllByThumbnailIsNotNullAndNameIsNotNullAndIsBannedFalse(pageable);
+        return videoRepository.findAllByThumbnailIsNotNullAndNameIsNotNullAndIsBannedFalseAndProcessingFalse(pageable);
     }
 
     @Override

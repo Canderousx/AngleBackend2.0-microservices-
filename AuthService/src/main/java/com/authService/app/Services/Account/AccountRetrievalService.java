@@ -6,6 +6,7 @@ import com.authService.app.Models.EnvironmentVariables;
 import com.authService.app.Models.Records.AccountRecord;
 import com.authService.app.Models.UserRole;
 import com.authService.app.Repositories.AccountRepository;
+import com.authService.app.Repositories.SubscriptionRepository;
 import com.authService.app.Services.Account.Interfaces.AccountRetrieval;
 import com.authService.app.Services.Cache.CacheService;
 import lombok.RequiredArgsConstructor;
@@ -25,6 +26,8 @@ import java.util.Optional;
 public class AccountRetrievalService implements AccountRetrieval {
 
     private final AccountRepository accountRepository;
+
+    private final SubscriptionRepository subscriptionRepository;
 
     private final CacheService cacheService;
 
@@ -104,6 +107,11 @@ public class AccountRetrievalService implements AccountRetrieval {
         }
 
         return cacheService.getWithCache(userId,this::getRawAccountById);
+    }
+
+    @Override
+    public long countSubscribers(String channelId) {
+        return subscriptionRepository.countByChannelId(channelId);
     }
 
     @Override

@@ -31,7 +31,6 @@ import org.springframework.stereotype.Service;
 @RequiredArgsConstructor
 public class VideoModerationService implements VideoModerationInterface {
 
-    private final Logger log = LogManager.getLogger(VideoModerationService.class);
 
     private final VideoRetrievalService videoRetrievalService;
 
@@ -72,6 +71,13 @@ public class VideoModerationService implements VideoModerationInterface {
         videoRepository.save(video);
         if(!video.isProcessing()){
             notificationGenerator.videoProcessingFinished(
+                    video.getAuthorId(),
+                    video.getName(),
+                    video.getId(),
+                    video.getThumbnail()
+            );
+        }else{
+            notificationGenerator.videoStillProcessing(
                     video.getAuthorId(),
                     video.getName(),
                     video.getId(),
