@@ -1,10 +1,13 @@
 package com.commentsManager.app.Services.Comments.Interfaces;
 
-import com.commentsManager.app.Config.Exceptions.MediaNotFoundException;
-
 public interface CommentModeration {
-
-    void banComment(String id) throws MediaNotFoundException;
+    void banComment(String id);
 
     void unbanComment(String id);
+
+    void banAllVideoComments(String videoId);
+
+    void unbanAllVideoComments(String videoId);
+    void banAllUserComments(String userId);
+    void unbanAllUserComments(String userId);
 }

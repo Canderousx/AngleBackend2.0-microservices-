@@ -56,7 +56,14 @@ public interface AccountRepository extends JpaRepository<Account,String> {
     Page<String> findSubscribers(@Param("accountId") String accountId, Pageable pageable);
 
 
-    @Query(value = "SELECT a.active FROM Account a WHERE a.email = :email",nativeQuery = true)
-    boolean isActive(@Param("email")String email);
+    @Modifying
+    @Transactional
+    @Query(value = "UPDATE account SET active = false WHERE id = :accountId",nativeQuery = true)
+    void banAccount(@Param("accountId")String accountId);
+
+    @Modifying
+    @Transactional
+    @Query(value = "UPDATE account SET active = true WHERE id = :accountId",nativeQuery = true)
+    void unbanAccount(@Param("accountId")String accountId);
 
 }

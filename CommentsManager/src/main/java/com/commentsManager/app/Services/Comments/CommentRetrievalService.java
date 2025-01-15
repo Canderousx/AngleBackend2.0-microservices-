@@ -46,7 +46,7 @@ public class CommentRetrievalService implements CommentRetrieval {
     @Override
     public Page<Comment> getVideoComments(String videoId,int page, int pageSize){
         Pageable paginateSettings = PageRequest.of(page,pageSize, Sort.by("datePublished").descending());
-        Page<Comment> pageComments = this.commentRepository.findByVideoId(videoId,paginateSettings);
+        Page<Comment> pageComments = this.commentRepository.findByVideoIdAndIsBannedFalse(videoId,paginateSettings);
         if(!pageComments.isEmpty()){
             return pageComments;
         }else{

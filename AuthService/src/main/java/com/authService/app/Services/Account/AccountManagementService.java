@@ -65,17 +65,13 @@ public class AccountManagementService implements AccountManagement {
     }
 
     @Override
-    public void banAccount(String id) throws AccountNotFoundException {
-        Account toBan = accountRetrievalService.getRawAccountById(id);
-        toBan.setActive(false);
-        accountRepository.save(toBan);
+    public void banAccount(String id){
+        accountRepository.banAccount(id);
     }
 
     @Override
-    public void unbanAccount(String id) throws AccountNotFoundException {
-        Account toUnban = accountRetrievalService.getRawAccountById(id);
-        toUnban.setActive(false);
-        accountRepository.save(toUnban);
+    public void unbanAccount(String id){
+        accountRepository.unbanAccount(id);
     }
 
     @Override

@@ -31,7 +31,6 @@ import org.springframework.stereotype.Service;
 @RequiredArgsConstructor
 public class VideoModerationService implements VideoModerationInterface {
 
-    private final Logger log = LogManager.getLogger(VideoModerationService.class);
 
     private final VideoRetrievalService videoRetrievalService;
 
@@ -72,6 +71,13 @@ public class VideoModerationService implements VideoModerationInterface {
         videoRepository.save(video);
         if(!video.isProcessing()){
             notificationGenerator.videoProcessingFinished(
+                    video.getAuthorId(),
+                    video.getName(),
+                    video.getId(),
+                    video.getThumbnail()
+            );
+        }else{
+            notificationGenerator.videoStillProcessing(
                     video.getAuthorId(),
                     video.getName(),
                     video.getId(),
@@ -133,7 +139,17 @@ public class VideoModerationService implements VideoModerationInterface {
         );
     }
 
-    private void rateVideo(String videoId,String rating) throws MediaNotFoundException {
+    @Override
+    public void banUserVideos(String userId) {
+        videoRepository.banAllUserVideos(userId);
+    }
+
+    @Override
+    public void unbanUserVideos(String userId) {
+        videoRepository.unbanAllUserVideos(userId);
+    }
+
+    private void rateVideo(String videoId, String rating) throws MediaNotFoundException {
         if(!doesVideoExist(videoId)){
             throw new MediaNotFoundException("Requested video not found!");
         }

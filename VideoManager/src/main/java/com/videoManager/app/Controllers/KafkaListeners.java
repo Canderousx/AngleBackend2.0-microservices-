@@ -1,6 +1,8 @@
 package com.videoManager.app.Controllers;
 
 
+import com.videoManager.app.Config.Exceptions.MediaNotFoundException;
+import com.videoManager.app.Models.Records.BanData;
 import com.videoManager.app.Models.Records.CommentNotificationData;
 import com.videoManager.app.Models.ThumbnailsData;
 import com.videoManager.app.Models.Records.VideoProcessingData;
@@ -10,24 +12,22 @@ import com.videoManager.app.Services.JsonUtils;
 import com.videoManager.app.Services.Notifications.Interfaces.NotificationGenerator;
 import com.videoManager.app.Services.Videos.VideoModerationService;
 import com.videoManager.app.Services.Videos.VideoUploadService;
+import lombok.RequiredArgsConstructor;
 import org.springframework.kafka.annotation.KafkaListener;
 import org.springframework.stereotype.Component;
 
 @Component
+@RequiredArgsConstructor
 public class KafkaListeners {
 
     private final VideoUploadService videoUploadService;
-
 
     private final NotificationGenerator notificationGenerator;
 
     private final VideoRepository videoRepository;
 
-    public KafkaListeners(VideoUploadService videoUploadService, NotificationGenerator notificationGenerator, VideoRepository videoRepository) {
-        this.videoUploadService = videoUploadService;
-        this.notificationGenerator = notificationGenerator;
-        this.videoRepository = videoRepository;
-    }
+    private final VideoModerationService videoModerationService;
+
     @KafkaListener(topics = "video_processed", groupId = "video_group")
     public void videoProcessed(String json){
         VideoProcessingData vpf = JsonUtils.readJson(json, VideoProcessingData.class);
@@ -46,6 +46,32 @@ public class KafkaListeners {
         CommentNotificationData data = JsonUtils.readJson(json, CommentNotificationData.class);
         notificationGenerator.newCommentNotification(data);
     }
+
+    @KafkaListener(topics = "video_banned", groupId = "video_group")
+    public void videoBanned(String json) throws MediaNotFoundException {
+        BanData data = JsonUtils.readJson(json, BanData.class);
+        videoModerationService.banVideo(data.bannedMediaId());
+    }
+
+    @KafkaListener(topics = "video_unbanned", groupId = "video_group")
+    public void videoUnbanned(String json) throws MediaNotFoundException {
+        BanData data = JsonUtils.readJson(json, BanData.class);
+        videoModerationService.unbanVideo(data.bannedMediaId());
+    }
+
+    @KafkaListener(topics = "account_banned", groupId = "video_group")
+    public void accountBanned(String json) throws MediaNotFoundException {
+        BanData data = JsonUtils.readJson(json, BanData.class);
+        videoModerationService.banUserVideos(data.reportedId());
+    }
+
+    @KafkaListener(topics = "account_unbanned", groupId = "video_group")
+    public void accountUnbanned(String json) throws MediaNotFoundException {
+        BanData data = JsonUtils.readJson(json, BanData.class);
+        videoModerationService.unbanUserVideos(data.reportedId());
+    }
+
+
 
 
 

@@ -21,7 +21,7 @@ public interface CommentRepository extends JpaRepository<Comment, String> {
 
     Page<Comment>findByAuthorIdOrderByDatePublishedDesc(String authorId,Pageable pageable);
 
-    Page<Comment> findByVideoId(String videoId, Pageable pageable);
+    Page<Comment> findByVideoIdAndIsBannedFalse(String videoId, Pageable pageable);
 
     @Query(value = "SELECT count(*) FROM comment c WHERE c.videoid = :videoId",nativeQuery = true)
     int countAllVideoComments(@RequestParam("videoId")String videoId);
@@ -45,6 +45,16 @@ public interface CommentRepository extends JpaRepository<Comment, String> {
     @Transactional
     @Query(value = "UPDATE comment SET isbanned = false WHERE id = :commentId",nativeQuery = true)
     void unbanComment(@RequestParam("commentId")String commentId);
+
+    @Modifying
+    @Transactional
+    @Query(value = "UPDATE comment SET isbanned = true WHERE videoid = :videoId",nativeQuery = true)
+    void banVideoComments(@RequestParam("videoId")String videoId);
+
+    @Modifying
+    @Transactional
+    @Query(value = "UPDATE comment SET isbanned = false WHERE videoid = :videoId",nativeQuery = true)
+    void unbanVideoComments(@RequestParam("videoId")String videoId);
 
     @Modifying
     @Transactional

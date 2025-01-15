@@ -10,6 +10,8 @@ public interface NotificationGenerator {
 
     void videoProcessingFinished(String ownerId,String videoTitle,String videoId,String thumbnail);
 
+    void videoStillProcessing(String ownerId,String videoTitle,String videoId,String thumbnail);
+
     void videoLacksMetadata(String ownerId,String videoId);
 
     void thumbnailsReadyToUse(String ownerId,String videoId);

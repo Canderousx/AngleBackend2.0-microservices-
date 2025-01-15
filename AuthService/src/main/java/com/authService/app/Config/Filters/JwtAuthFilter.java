@@ -1,6 +1,7 @@
 package com.authService.app.Config.Filters;
 
 
+import com.authService.app.Config.Exceptions.AccountBannedException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.authService.app.Config.Services.JwtService;
 import com.authService.app.Config.Services.MyUserDetailsService;
@@ -32,8 +33,6 @@ public class JwtAuthFilter extends OncePerRequestFilter {
     @Autowired
     MyUserDetailsService userDetailsService;
 
-
-
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException{
         String authHeader = request.getHeader("Authentication");
@@ -49,6 +48,9 @@ public class JwtAuthFilter extends OncePerRequestFilter {
             }
             if(userId !=null && SecurityContextHolder.getContext().getAuthentication() == null){
                 Account account = userDetailsService.loadUserByUsername(userId);
+                if(!account.isActive()){
+                    throw new AccountBannedException("Account banned.");
+                }
                 String userIP = request.getRemoteAddr();
                 if(jwtService.validateToken(token,account,userIP)){
                     UsernamePasswordAuthenticationToken authToken = new UsernamePasswordAuthenticationToken(
@@ -68,6 +70,13 @@ public class JwtAuthFilter extends OncePerRequestFilter {
         }catch (AuthorizationDeniedException | AuthenticationException e) {
             SecurityContextHolder.clearContext();
             response.sendError(HttpServletResponse.SC_FORBIDDEN, "Access Denied");
+        } catch (AccountBannedException e) {
+            SecurityContextHolder.clearContext();
+            response.setStatus(HttpServletResponse.SC_FORBIDDEN);
+            ServerMessage serverMessage = new ServerMessage(e.getMessage());
+            String jsonResponse = new ObjectMapper().writeValueAsString(serverMessage);
+            response.getWriter().write(jsonResponse);
+            response.getWriter().flush();
         }
     }
 }

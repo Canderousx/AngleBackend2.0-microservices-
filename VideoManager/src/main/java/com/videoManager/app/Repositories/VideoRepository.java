@@ -23,7 +23,7 @@ public interface VideoRepository extends JpaRepository<Video, String> {
     Optional<Video> findByDatePublished(Date datePublished);
 
     Optional<Video>findByRawPath(String rawPath);
-    Page<VideoRecord> findAllByThumbnailIsNotNullAndNameIsNotNullAndIsBannedFalse(Pageable page);
+    Page<VideoRecord> findAllByThumbnailIsNotNullAndNameIsNotNullAndIsBannedFalseAndProcessingFalse(Pageable page);
 
     @Modifying
     @Transactional
@@ -34,7 +34,9 @@ public interface VideoRepository extends JpaRepository<Video, String> {
     @Query(value = "SELECT * FROM Video v WHERE FIND_IN_SET(:tag, v.tags) > 0 AND v.thumbnail IS NOT NULL AND v.name IS NOT NULL AND v.isbanned = false", nativeQuery = true)
     Optional<VideoProjection> findByTag(String tag);
 
-    Page<VideoRecord> findByAuthorId(String authorId, Pageable pageable);
+    Page<VideoRecord> findByAuthorIdAndProcessingFalse(String authorId, Pageable pageable);
+
+    Page<VideoRecord> findByAuthorId(String authorId,Pageable pageable);
 
     @Query("""
     SELECT new com.videoManager.app.Models.Records.VideoRecord(
@@ -55,6 +57,7 @@ public interface VideoRepository extends JpaRepository<Video, String> {
       AND v.id != :currentVideoId 
       AND v.thumbnail IS NOT NULL 
       AND v.name IS NOT NULL
+      AND processing = false
     GROUP BY v.id
     ORDER BY function('RAND')
 """)
@@ -80,6 +83,7 @@ public interface VideoRepository extends JpaRepository<Video, String> {
       AND v.thumbnail IS NOT NULL 
       AND v.name IS NOT NULL 
       AND v.id != :currentVideoId
+      AND processing = false
     ORDER BY function('RAND')
 """)
     List<VideoRecord> findRandom(@Param("videoIds") List<String> videoIds,
@@ -104,6 +108,7 @@ public interface VideoRepository extends JpaRepository<Video, String> {
     WHERE v.isBanned = false 
       AND v.thumbnail IS NOT NULL 
       AND v.name IS NOT NULL
+      AND processing = false
     ORDER BY v.views DESC
 """)
     List<VideoRecord> findMostPopular(@Param("quantity")int quantity);
@@ -126,6 +131,7 @@ public interface VideoRepository extends JpaRepository<Video, String> {
     WHERE v.isBanned = false 
       AND t.name IN :tagNames
       AND v.thumbnail IS NOT NULL
+      AND processing = false
     GROUP BY v.id
     ORDER BY function('RAND')
 """)
@@ -157,14 +163,19 @@ public interface VideoRepository extends JpaRepository<Video, String> {
     FROM Video v
     WHERE v.authorId IN :subIds 
       AND v.isBanned = false
+      AND v.processing = false
     ORDER BY v.datePublished DESC
 """)
     Page<VideoRecord> findFromSubscribers(@Param("subIds") List<String> subIds, Pageable pageable);
 
+    @Modifying
+    @Transactional
+    @Query(value = "UPDATE video SET isbanned = true WHERE id = :videoId",nativeQuery = true)
+    void banVideo(@Param("videoId")String videoId);
 
     @Modifying
     @Transactional
-    @Query(value = "UPDATE video SET isbanned = true WHERE authorId = :accountId", nativeQuery = true)
+    @Query(value = "UPDATE video SET isbanned = true WHERE author_id = :accountId", nativeQuery = true)
     void banAllUserVideos(@RequestParam("accountId") String accountId);
 
 
@@ -175,7 +186,7 @@ public interface VideoRepository extends JpaRepository<Video, String> {
 
     @Modifying
     @Transactional
-    @Query(value = "UPDATE video SET isbanned = false WHERE authorid = :accountId", nativeQuery = true)
+    @Query(value = "UPDATE video SET isbanned = false WHERE author_id = :accountId", nativeQuery = true)
     void unbanAllUserVideos(@RequestParam("accountId") String accountId);
 
     @Query(value = "SELECT count(*) FROM video v WHERE v.authorId = :accountId", nativeQuery = true)

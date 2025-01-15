@@ -16,6 +16,8 @@ import java.util.Optional;
 @Repository
 public interface SubscriptionRepository extends JpaRepository<Subscription,Long> {
 
+    long countByChannelId(String channelId);
+
     boolean existsByAccountIdAndChannelId(String accountId, String channelId);
 
     void deleteByAccountIdAndChannelId(String accountId,String channelId);
@@ -30,5 +32,8 @@ public interface SubscriptionRepository extends JpaRepository<Subscription,Long>
 
     @Query(value = "SELECT account_id FROM subscription WHERE channel_id = :channelId",nativeQuery = true)
     Page<String>getSubscribers(@Param("channelId")String channelId,Pageable pageable);
+
+
+
 
 }

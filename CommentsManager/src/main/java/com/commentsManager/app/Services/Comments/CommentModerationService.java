@@ -1,32 +1,44 @@
 package com.commentsManager.app.Services.Comments;
 
-import com.commentsManager.app.Config.Exceptions.MediaNotFoundException;
-import com.commentsManager.app.Models.Comment;
 import com.commentsManager.app.Repositories.CommentRepository;
 import com.commentsManager.app.Services.Comments.Interfaces.CommentModeration;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 
 @Service
+@RequiredArgsConstructor
 public class CommentModerationService implements CommentModeration {
 
     private final CommentRepository commentRepository;
 
-    @Autowired
-    public CommentModerationService(CommentRepository commentRepository){
-        this.commentRepository = commentRepository;
-    }
     @Override
-    public void banComment(String id) throws MediaNotFoundException {
-        Comment comment = commentRepository.findById(id).orElseThrow(() -> new MediaNotFoundException("Comment doesn't exist"));
-        comment.setBanned(true);
-        commentRepository.save(comment);
+    public void banComment(String id) {
+        commentRepository.banComment(id);
     }
 
     @Override
     public void unbanComment(String id) {
         commentRepository.unbanComment(id);
+    }
 
+    @Override
+    public void banAllVideoComments(String videoId) {
+        commentRepository.banVideoComments(videoId);
+    }
+
+    @Override
+    public void unbanAllVideoComments(String videoId) {
+        commentRepository.unbanVideoComments(videoId);
+    }
+
+    @Override
+    public void banAllUserComments(String userId) {
+        commentRepository.banAllUserComments(userId);
+    }
+
+    @Override
+    public void unbanAllUserComments(String userId) {
+        commentRepository.unbanAllUserComments(userId);
     }
 }

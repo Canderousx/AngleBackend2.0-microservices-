@@ -35,6 +35,13 @@ spring:
             - Path=/api/comments/**
           filters:
             - StripPrefix=2
+
+        - id: reports-manager
+          uri: http://localhost:7705
+          predicates:
+            - Path=/api/reports-manager/**
+          filters:
+            - StripPrefix=2
 logging:
   level:
     org.springframework.cloud.gateway: DEBUG

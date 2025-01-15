@@ -14,7 +14,8 @@ public interface VideoModerationInterface {
     void removeVideo(String id) throws MediaNotFoundException, FileServiceException, UnauthorizedException;
 
     void banVideo(String videoId) throws MediaNotFoundException;
-
+    void banUserVideos(String userId);
+    void unbanUserVideos(String userId);
     void unbanVideo(String videoId) throws MediaNotFoundException;
 
     void dislikeVideo(String videoId) throws MediaNotFoundException;

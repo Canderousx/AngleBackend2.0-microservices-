@@ -36,6 +36,11 @@ public class ExceptionHandler {
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new ServerMessage(e.getMessage()));
     }
 
+    @org.springframework.web.bind.annotation.ExceptionHandler(AccountBannedException.class)
+    public ResponseEntity<ServerMessage> AccountBannedException(AccountBannedException e){
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new ServerMessage(e.getMessage()));
+    }
+
     @org.springframework.web.bind.annotation.ExceptionHandler(CredentialsExistException.class)
     public ResponseEntity<ServerMessage> handleCredentialsExistException(CredentialsExistException e){
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new ServerMessage(e.getMessage()));

@@ -85,4 +85,9 @@ public class AccountData {
                 SecurityContextHolder.getContext().getAuthentication().getName()
         );
     }
+
+    @RequestMapping(value = "countSubscribers",method = RequestMethod.GET)
+    public long countSubscribers(@RequestParam String id){
+        return accountRetrievalService.countSubscribers(id);
+    }
 }
