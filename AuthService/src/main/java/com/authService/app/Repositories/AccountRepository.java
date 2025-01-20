@@ -31,6 +31,12 @@ public interface AccountRepository extends JpaRepository<Account,String> {
     @Query(value = "SELECT username FROM account WHERE id = :accountId",nativeQuery = true)
     String getUsernameById(@Param("accountId")String accountId);
 
+
+    @Modifying
+    @Transactional
+    @Query(value = "UPDATE account SET avatar = :avatar WHERE id = :id",nativeQuery = true)
+    void setAvatar(@Param("avatar")String avatar,@Param("id")String id);
+
     @Modifying
     @Query(value = "INSERT INTO account_subscribers(account_id, subscribers) VALUES (:channelId, :subscriber)",nativeQuery = true)
     @Transactional

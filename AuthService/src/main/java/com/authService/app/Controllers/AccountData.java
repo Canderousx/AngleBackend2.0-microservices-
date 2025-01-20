@@ -9,12 +9,14 @@ import com.authService.app.Services.Account.AccountManagementService;
 import com.authService.app.Services.Account.AccountRetrievalService;
 import com.authService.app.Services.Account.AvatarService;
 import com.authService.app.Services.Subscription.SubscriptionRetrievalService;
+import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import org.apache.coyote.BadRequestException;
 import org.springframework.core.io.Resource;
 import org.springframework.data.domain.Page;
 import org.springframework.http.CacheControl;
 import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
@@ -63,11 +65,21 @@ public class AccountData {
     }
 
     @RequestMapping(value = "media/getAvatar",method = RequestMethod.GET)
-    public ResponseEntity<Resource>getAvatar(@RequestParam String userId) throws IOException {
+    public ResponseEntity<Resource>getAvatar(@RequestParam String userId, HttpServletRequest request) throws IOException {
         Resource avatarFile = accountRetrievalService.getAvatar(userId);
+        String eTag = "\""+String.valueOf(avatarFile.lastModified())+"\"";
+        String ifNoneMatch = request.getHeader(HttpHeaders.IF_NONE_MATCH);
+        if (ifNoneMatch != null && ifNoneMatch.equals(eTag)) {
+            return ResponseEntity.status(HttpStatus.NOT_MODIFIED).eTag(eTag).build();
+        }
         return ResponseEntity.ok()
+                .eTag(eTag)
                 .header(HttpHeaders.CONTENT_TYPE, Files.probeContentType(avatarFile.getFile().toPath()))
-                .cacheControl(CacheControl.maxAge(30, TimeUnit.DAYS).cachePublic())
+                .cacheControl(CacheControl
+                        .noCache()
+                        .cachePublic()
+                        .mustRevalidate()
+                )
                 .body(avatarFile);
     }
 

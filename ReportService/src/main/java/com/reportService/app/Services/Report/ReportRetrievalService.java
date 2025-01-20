@@ -25,12 +25,25 @@ public class ReportRetrievalService implements ReportRetrievalInterface {
         return PageRequest.of(page,pageSize,sort);
     }
 
-    private Sort sortByDatePublishedDesc(){
+    private Sort sortByDatePublished(boolean ascending){
+        if(ascending){
+            return Sort.by("datePublished").ascending();
+        }
         return Sort.by("datePublished").descending();
     }
 
-    private Sort sortByDateResolvedDesc(){
+    private Sort sortByDateResolved(boolean ascending){
+        if(ascending){
+            return Sort.by("dateResolved").ascending();
+        }
         return Sort.by("dateResolved").descending();
+    }
+
+    private Sort sortBy(String sortBy,boolean ascending){
+        if(ascending){
+            return Sort.by(sortBy).ascending();
+        }
+        return Sort.by(sortBy).descending();
     }
 
     @Override
@@ -68,55 +81,55 @@ public class ReportRetrievalService implements ReportRetrievalInterface {
     }
 
     @Override
-    public Page<Report> getByReportedId(String reportedId, int page, int pageSize) {
-        return reportRepository.findByReportedAccountId(reportedId,getPageable(page,pageSize,sortByDatePublishedDesc()));
+    public Page<Report> getByReportedId(String reportedId, int page, int pageSize,boolean ascending,String sortBy) {
+        return reportRepository.findByReportedAccountId(reportedId,getPageable(page,pageSize,sortBy(sortBy,ascending)));
     }
 
     @Override
-    public Page<Report> getByReportedId(String reportedId, String solution, int page, int pageSize) {
-        return reportRepository.findBySolutionAndReportedAccountId(solution,reportedId,getPageable(page,pageSize,sortByDatePublishedDesc()));
+    public Page<Report> getByReportedId(String reportedId, String solution, int page, int pageSize,boolean ascending,String sortBy) {
+        return reportRepository.findBySolutionAndReportedAccountId(solution,reportedId,getPageable(page,pageSize, sortBy(sortBy,ascending)));
     }
 
     @Override
-    public Page<Report> getByCategory(String category, int page, int pageSize) {
-        return reportRepository.findByCategory(category,getPageable(page,pageSize,sortByDatePublishedDesc()));
+    public Page<Report> getByCategory(String category, int page, int pageSize,boolean ascending,String sortBy) {
+        return reportRepository.findByCategory(category,getPageable(page,pageSize, sortBy(sortBy,ascending)));
     }
 
     @Override
-    public Page<Report> getByCategory(String category, boolean resolved, int page, int pageSize) {
+    public Page<Report> getByCategory(String category, boolean resolved, int page, int pageSize,boolean ascending,String sortBy) {
         if(resolved){
-            return reportRepository.findByCategoryAndResolvedTrue(category,getPageable(page,pageSize,sortByDateResolvedDesc()));
+            return reportRepository.findByCategoryAndResolvedTrue(category,getPageable(page,pageSize, sortBy(sortBy,ascending)));
         }
-        return reportRepository.findByCategoryAndResolvedFalse(category,getPageable(page,pageSize,sortByDatePublishedDesc()));
+        return reportRepository.findByCategoryAndResolvedFalse(category,getPageable(page,pageSize, sortBy(sortBy,ascending)));
     }
 
     @Override
-    public Page<Report> getByCategory(String category, String adminId, int page, int pageSize) {
-        return reportRepository.findByCategoryAndResolvedByAndResolvedTrue(category,adminId,getPageable(page,pageSize,sortByDateResolvedDesc()));
+    public Page<Report> getByCategory(String category, String adminId, int page, int pageSize,boolean ascending,String sortBy) {
+        return reportRepository.findByCategoryAndResolvedByAndResolvedTrue(category,adminId,getPageable(page,pageSize, sortBy(sortBy,ascending)));
     }
 
     @Override
-    public Page<Report> getUnresolved(int page, int pageSize) {
-        return reportRepository.findByResolvedFalse(getPageable(page,pageSize,sortByDatePublishedDesc()));
+    public Page<Report> getUnresolved(int page, int pageSize,boolean ascending,String sortBy) {
+        return reportRepository.findByResolvedFalse(getPageable(page,pageSize, sortBy(sortBy,ascending)));
     }
 
     @Override
-    public Page<Report> getUnresolved(String category, int page, int pageSize) {
-        return reportRepository.findByCategoryAndResolvedFalse(category,getPageable(page,pageSize,sortByDatePublishedDesc()));
+    public Page<Report> getUnresolved(String category, int page, int pageSize,boolean ascending,String sortBy) {
+        return reportRepository.findByCategoryAndResolvedFalse(category,getPageable(page,pageSize, sortBy(sortBy,ascending)));
     }
 
     @Override
-    public Page<Report> getResolved(int page, int pageSize) {
-        return reportRepository.findByResolvedTrue(getPageable(page,pageSize,sortByDateResolvedDesc()));
+    public Page<Report> getResolved(int page, int pageSize,boolean ascending,String sortBy) {
+        return reportRepository.findByResolvedTrue(getPageable(page,pageSize, sortBy(sortBy,ascending)));
     }
 
     @Override
-    public Page<Report> getResolved(String adminId, int page, int pageSize) {
-        return reportRepository.findByResolvedBy(adminId,getPageable(page,pageSize,sortByDateResolvedDesc()));
+    public Page<Report> getResolved(String adminId, int page, int pageSize,boolean ascending,String sortBy) {
+        return reportRepository.findByResolvedBy(adminId,getPageable(page,pageSize, sortBy(sortBy,ascending)));
     }
 
     @Override
-    public Page<Report> getResolved(String adminId, String category, int page, int pageSize) {
-        return reportRepository.findByResolvedByAndCategory(adminId,category,getPageable(page,pageSize,sortByDateResolvedDesc()));
+    public Page<Report> getResolved(String adminId, String category, int page, int pageSize,boolean ascending,String sortBy) {
+        return reportRepository.findByResolvedByAndCategory(adminId,category,getPageable(page,pageSize, sortBy(sortBy,ascending)));
     }
 }

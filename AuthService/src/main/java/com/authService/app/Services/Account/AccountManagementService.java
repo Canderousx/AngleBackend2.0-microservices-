@@ -15,11 +15,13 @@ import org.apache.logging.log4j.Logger;
 import org.apache.tomcat.util.http.fileupload.InvalidFileNameException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.cache.RedisCacheManager;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
+import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
@@ -79,14 +81,10 @@ public class AccountManagementService implements AccountManagement {
         if(!avatarService.checkExtension(avatar)){
             throw new InvalidFileNameException("","File extension not supported!");
         }
-        Account account = accountRetrievalService.getRawCurrentUser();
-        account.setAvatar(
-                avatarService.saveAvatarFile(
-                        account.getId(),
-                        avatar
-                )
-        );
-        accountRepository.save(account);
+        accountRepository.setAvatar(avatarService.saveAvatarFile(
+                UUID.randomUUID().toString(),
+                avatar),
+                SecurityContextHolder.getContext().getAuthentication().getName());
     }
 
 

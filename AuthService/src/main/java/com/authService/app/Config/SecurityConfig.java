@@ -5,9 +5,11 @@ import com.authService.app.Config.Filters.RequestsLogger;
 import com.authService.app.Config.Services.JwtService;
 import com.authService.app.Config.Services.MyUserDetailsService;
 import com.authService.app.Models.EnvironmentVariables;
+import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.data.web.config.EnableSpringDataWebSupport;
+import org.springframework.http.CacheControl;
 import org.springframework.scheduling.annotation.EnableAsync;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.AuthenticationProvider;
@@ -28,15 +30,18 @@ import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 import org.springframework.web.servlet.config.annotation.ResourceHandlerRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
+import java.io.File;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 
 @Configuration
 @EnableWebSecurity
 @EnableMethodSecurity
 @EnableAsync(proxyTargetClass = true)
 public class SecurityConfig implements WebMvcConfigurer {
+
 
 
     @Bean

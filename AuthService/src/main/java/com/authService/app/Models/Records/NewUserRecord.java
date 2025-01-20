@@ -1,7 +1,10 @@
 package com.authService.app.Models.Records;
 
+import com.authService.app.Validators.MinAge.MinDate;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.Size;
+
+import java.util.Date;
 
 public record NewUserRecord(
 
@@ -11,6 +14,10 @@ public record NewUserRecord(
         String email,
 
         @Size(min = 7,max = 15,message = "Password should contain at least 7 chars and 15 at maximum")
-        String password
+        String password,
+
+
+        @MinDate(yearsAccepted = 13)
+        Date birthDate
 ) {
 }
