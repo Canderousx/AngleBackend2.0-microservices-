@@ -11,6 +11,8 @@ import org.springframework.data.domain.Sort;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
+import java.security.Principal;
+
 
 @Service
 @RequiredArgsConstructor
@@ -29,6 +31,13 @@ public class NotificationsRetrievalService implements NotificationsRetrievalInte
     public Page<Notification> getUserNotifications(int page, int pageSize) {
         Pageable pageable = PageRequest.of(page,pageSize);
         String userId = SecurityContextHolder.getContext().getAuthentication().getName();
+        return notificationRepository.findByOwnerIdAndForUserTrueOrderByDatePublishedDesc(userId,pageable);
+    }
+
+    @Override
+    public Page<Notification> getUserNotifications(int page, int pageSize, Principal principal) {
+        Pageable pageable = PageRequest.of(page,pageSize);
+        String userId = principal.getName();
         return notificationRepository.findByOwnerIdAndForUserTrueOrderByDatePublishedDesc(userId,pageable);
     }
 

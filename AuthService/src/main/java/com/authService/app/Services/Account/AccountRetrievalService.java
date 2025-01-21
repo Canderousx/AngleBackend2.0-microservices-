@@ -19,6 +19,7 @@ import org.springframework.stereotype.Service;
 
 import java.io.File;
 import java.util.Optional;
+import java.util.Set;
 
 @Service
 @RequiredArgsConstructor
@@ -52,15 +53,19 @@ public class AccountRetrievalService implements AccountRetrieval {
         return !account.isActive();
     }
 
-    @Override
-    public boolean isAdmin(String id) throws AccountNotFoundException {
-        Account account = getRawAccountById(id);
-        for(UserRole roles : account.getRoles()){
+    private boolean adminTest(Set<UserRole> accountRoles){
+        for(UserRole roles : accountRoles){
             if(roles.getName().equals("ROLE_ADMIN")){
                 return true;
             }
         }
         return false;
+    }
+
+    @Override
+    public boolean isAdmin(String id) throws AccountNotFoundException {
+        Account account = getRawAccountById(id);
+        return adminTest(account.getRoles());
     }
 
     @Override
@@ -84,19 +89,24 @@ public class AccountRetrievalService implements AccountRetrieval {
         return false;
     }
 
+
     private AccountRecord toRecord(Account account){
+        boolean isAdmin = adminTest(account.getRoles());
         return new AccountRecord(
                 account.getId(),
                 account.getUsername(),
-                account.getAvatar(),
-                account.getEmail()
+                account.getEmail(),
+                isAdmin
         );
     }
 
     @Override
     public AccountRecord getCurrentUser() throws BadRequestException {
-        Account account = getRawCurrentUser();
-        return toRecord(account);
+        String userId = SecurityContextHolder.getContext().getAuthentication().getName();
+        if(userId == null){
+            throw new BadRequestException("You need to log in first!");
+        }
+        return getUserById(userId);
     }
 
     @Override
@@ -105,8 +115,7 @@ public class AccountRetrievalService implements AccountRetrieval {
         if(userId == null){
             throw new BadRequestException("You need to log in first!");
         }
-
-        return cacheService.getWithCache(userId,this::getRawAccountById);
+        return getRawAccountById(userId);
     }
 
     @Override
@@ -115,20 +124,21 @@ public class AccountRetrievalService implements AccountRetrieval {
     }
 
     @Override
+    @Cacheable(value = "auth_cache",key = "#id")
     public AccountRecord getUserById(String id) {
-        Account account = cacheService.getWithCache(id,this::getRawAccountById);
+        Account account = getRawAccountById(id);
         return toRecord(account);
     }
 
     @Override
     public AccountRecord getUserByUsername(String username){
-        Account account = cacheService.getWithCache(username,this::getRawAccountByUsername);
+        Account account = getRawAccountByUsername(username);
         return toRecord(account);
     }
 
     @Override
     public AccountRecord getUserByEmail(String email) {
-        Account account = cacheService.getWithCache(email,this::getRawAccountByEmail);
+        Account account = getRawAccountByEmail(email);
         return toRecord(account);
     }
 

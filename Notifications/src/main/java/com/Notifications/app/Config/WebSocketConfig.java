@@ -69,7 +69,6 @@ public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
                             WebSocketHandler wsHandler,
                             Map<String, Object> attributes) {
                         if (request instanceof ServletServerHttpRequest) {
-                            // Pobranie adresu IP użytkownika
                             ServletServerHttpRequest servletRequest = (ServletServerHttpRequest) request;
                             String ipAddress = servletRequest.getRemoteAddress().getAddress().getHostAddress();
                             attributes.put("ip_address", ipAddress);
@@ -127,6 +126,7 @@ public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
                     } else {
                         log.warn("Token validation failed for userId: {}", userId);
                         SecurityContextHolder.clearContext();
+                        return null;
                     }
                 }
                 return message;

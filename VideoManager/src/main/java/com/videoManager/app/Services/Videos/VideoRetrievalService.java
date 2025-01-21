@@ -151,10 +151,9 @@ public class VideoRetrievalService implements VideoRetrievalInterface {
     }
 
     @Override
-    @Cacheable(value = "video_cache",key = "'most_popular'")
-    public List<VideoRecord> getMostPopular() {
-        int quantity = 4;
-        return videoRepository.findMostPopular(quantity);
+    @Cacheable(value = "video_cache",key = "'most_popular'",unless = "#result == null || #result.size() < #quantity")
+    public List<VideoRecord> getMostPopular(int quantity) {
+        return videoRepository.findMostPopular(PageRequest.of(0,quantity));
     }
 
     @Override
@@ -165,7 +164,7 @@ public class VideoRetrievalService implements VideoRetrievalInterface {
     }
 
     @Override
-    @Cacheable(value = "video_cache",key = "#videoId +'__similar_videos'")
+    @Cacheable(value = "video_cache",key = "#videoId +'__similar_videos'",unless = "#result == null || #result.size() < 10")
     public List<VideoRecord> getSimilar(String videoId) throws MediaNotFoundException {
         List<VideoRecord>videos = new ArrayList<>();
         Video video = getRawVideo(videoId);

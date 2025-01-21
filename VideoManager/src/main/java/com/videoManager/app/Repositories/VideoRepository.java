@@ -111,7 +111,7 @@ public interface VideoRepository extends JpaRepository<Video, String> {
       AND processing = false
     ORDER BY v.views DESC
 """)
-    List<VideoRecord> findMostPopular(@Param("quantity")int quantity);
+    List<VideoRecord> findMostPopular(Pageable pageable);
 
 
     @Query("""

@@ -37,7 +37,7 @@ public interface VideoRetrievalInterface {
 
     long countDislikes(String videoId);
 
-    List<VideoRecord>getMostPopular();
+    List<VideoRecord>getMostPopular(int quantity);
 
     Page<VideoRecord> getBySubscribers(int page,int pageSize, String token) throws BadRequestException, InterruptedException;
 

@@ -12,6 +12,7 @@ import com.authService.app.Services.Subscription.SubscriptionRetrievalService;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import org.apache.coyote.BadRequestException;
+import org.apache.kafka.common.protocol.types.Field;
 import org.springframework.core.io.Resource;
 import org.springframework.data.domain.Page;
 import org.springframework.http.CacheControl;
@@ -40,7 +41,11 @@ public class AccountData {
 
     @RequestMapping(value = "getCurrentUser",method = RequestMethod.GET)
     public AccountRecord getCurrentUser() throws BadRequestException {
-        return accountRetrievalService.getCurrentUser();
+        String id = SecurityContextHolder.getContext().getAuthentication().getName();
+        if(id == null){
+            return null;
+        }
+        return accountRetrievalService.getUserById(id);
     }
 
     @RequestMapping(value = "emailExists",method = RequestMethod.GET)
@@ -86,9 +91,7 @@ public class AccountData {
     @RequestMapping(value = "getSubscribedChannelsRandom",method = RequestMethod.GET)
     public List<String> getSubscribedIds(@RequestParam int quantity){
         String accountId = SecurityContextHolder.getContext().getAuthentication().getName();
-        List<String> subs = subscriptionRetrievalService.getSubscribedChannelsOrderByRandom(accountId,quantity);
-        System.out.println("SUBS COUNT: "+subs.size());
-        return subs;
+        return subscriptionRetrievalService.getSubscribedChannelsOrderByRandom(accountId,quantity);
     }
 
     @RequestMapping(value = "amAdmin",method = RequestMethod.GET)

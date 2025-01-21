@@ -51,8 +51,8 @@ public class VideosData {
         return videoRetrievalService.getLatestVideos(page,pageSize);
     }
     @RequestMapping(value = "/getMostPopular",method = RequestMethod.GET)
-    public List<VideoRecord> getMostPopularVideos(){
-        return videoRetrievalService.getMostPopular();
+    public List<VideoRecord> getMostPopularVideos(@RequestParam int quantity){
+        return videoRetrievalService.getMostPopular(quantity);
     }
 
     @RequestMapping(value = "/getBySubscribed",method = RequestMethod.GET)
