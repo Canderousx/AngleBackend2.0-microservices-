@@ -22,6 +22,7 @@ import org.springframework.security.web.authentication.WebAuthenticationDetailsS
 import org.springframework.web.filter.OncePerRequestFilter;
 
 import java.io.IOException;
+import java.util.Arrays;
 
 @AllArgsConstructor
 public class JwtAuthFilter extends OncePerRequestFilter {
@@ -33,8 +34,21 @@ public class JwtAuthFilter extends OncePerRequestFilter {
     @Autowired
     MyUserDetailsService userDetailsService;
 
+    @Autowired
+    String[]permitAllEndpoints;
+
+    private boolean isPathPermitAll(String path){
+        return Arrays.stream(permitAllEndpoints).anyMatch(path::startsWith);
+    }
+
+
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException{
+        String path = request.getRequestURI();
+        if(isPathPermitAll(path)){
+            filterChain.doFilter(request,response);
+            return;
+        }
         String authHeader = request.getHeader("Authentication");
         String userId = null;
         String token = null;

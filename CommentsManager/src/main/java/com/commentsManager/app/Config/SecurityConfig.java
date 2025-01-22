@@ -20,17 +20,25 @@ import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 @EnableMethodSecurity
 public class SecurityConfig implements WebMvcConfigurer {
 
+
+
     @Override
     public void addResourceHandlers(ResourceHandlerRegistry registry) {
         registry.addResourceHandler("api/media/video/**")
                 .addResourceLocations("file:/app/media/");
     }
     @Bean
-    public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
+    public String[]permitAllEndpoints(){
+        return new String[]{
+                "/comments/getVideoComments"
+        };
+    }
+    @Bean
+    public SecurityFilterChain filterChain(HttpSecurity http,String[]permitAllEndpoints) throws Exception {
         return http
                 .csrf(AbstractHttpConfigurer::disable)
                 .authorizeHttpRequests(req -> req
-                        .requestMatchers("/comments/getVideoComments")
+                        .requestMatchers(permitAllEndpoints)
                         .permitAll()
                         .anyRequest().authenticated()
                 )
@@ -42,7 +50,7 @@ public class SecurityConfig implements WebMvcConfigurer {
 
     @Bean
     JwtAuthFilter jwtAuthFilter(){
-        return new JwtAuthFilter(jwtService());
+        return new JwtAuthFilter(jwtService(),permitAllEndpoints());
     }
 
     @Bean

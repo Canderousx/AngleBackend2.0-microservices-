@@ -37,6 +37,16 @@ public class SecurityConfig implements WebMvcConfigurer {
         this.environmentVariables = environmentVariables;
     }
 
+    @Bean
+    public String[]permitAllEndpoints(){
+        return new String[]{
+                "/videos/**",
+                "/search/**",
+                "/manage/registerView",
+                "/media/thumbnails/**"
+        };
+    }
+
     @Override
     public void addResourceHandlers(ResourceHandlerRegistry registry) {
         registry.addResourceHandler("/media/thumbnails/**")
@@ -47,12 +57,12 @@ public class SecurityConfig implements WebMvcConfigurer {
     }
 
     @Bean
-    public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
+    public SecurityFilterChain filterChain(HttpSecurity http,String[]permitAllEndpoints) throws Exception {
         return http
                 .csrf(AbstractHttpConfigurer::disable)
                 .authorizeHttpRequests(req -> req
                         .requestMatchers("/videos/getBySubscribed").authenticated()
-                        .requestMatchers("/videos/**","/search/**","/manage/registerView","/media/thumbnails/**").permitAll()
+                        .requestMatchers(permitAllEndpoints).permitAll()
                         .anyRequest().authenticated()
                 )
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
@@ -63,7 +73,7 @@ public class SecurityConfig implements WebMvcConfigurer {
 
     @Bean
     JwtAuthFilter jwtAuthFilter(){
-        return new JwtAuthFilter(jwtService());
+        return new JwtAuthFilter(jwtService(),permitAllEndpoints());
     }
 
     @Bean

@@ -43,20 +43,28 @@ import java.util.concurrent.TimeUnit;
 public class SecurityConfig implements WebMvcConfigurer {
 
 
+    @Bean
+    public String[]permitAllEndpoints(){
+        return new String[]{
+                "/signIn/**",
+                "/signUp/**",
+                "/accounts/media/**",
+                "/accounts/getUserById",
+                "/accounts/emailExists",
+                "/accounts/usernameExists",
+                "/accounts/countSubscribers"
+        };
+    }
+
+
 
     @Bean
-    public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
+    public SecurityFilterChain filterChain(HttpSecurity http,String[]permitAllEndpoints) throws Exception {
         return http
                 .csrf(AbstractHttpConfigurer::disable)
                 .authorizeHttpRequests(req ->
-                        req.requestMatchers(
-                                "/signIn",
-                                        "/signUp/**",
-                                        "/accounts/media/**",
-                                        "/accounts/getUserById",
-                                        "/accounts/emailExists",
-                                        "/accounts/usernameExists",
-                                        "/accounts/countSubscribers").permitAll()
+                        req
+                                .requestMatchers(permitAllEndpoints).permitAll()
                                 .anyRequest().authenticated())
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authenticationProvider(authenticationProvider())
@@ -68,7 +76,7 @@ public class SecurityConfig implements WebMvcConfigurer {
 
     @Bean
     JwtAuthFilter jwtAuthFilter(){
-        return new JwtAuthFilter(jwtService(),userDetailsService());
+        return new JwtAuthFilter(jwtService(),userDetailsService(),permitAllEndpoints());
     }
 
     @Bean

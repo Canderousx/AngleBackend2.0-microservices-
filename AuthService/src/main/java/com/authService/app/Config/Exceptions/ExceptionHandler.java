@@ -1,6 +1,7 @@
 package com.authService.app.Config.Exceptions;
 
 import com.authService.app.Models.Records.ServerMessage;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.coyote.BadRequestException;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -13,12 +14,20 @@ import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 
 @ControllerAdvice
+@Slf4j
 public class ExceptionHandler {
 
     private final Logger logger = LogManager.getLogger(ExceptionHandler.class);
     @org.springframework.web.bind.annotation.ExceptionHandler(TokenExpiredException.class)
     public ResponseEntity<ServerMessage> handleTokenExpiredException(TokenExpiredException e){
-        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(new ServerMessage("Session timeout."));
+        log.info(e.getMessage());
+        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(new ServerMessage("You need to sign in."));
+    }
+
+    @org.springframework.web.bind.annotation.ExceptionHandler(UnknownRefreshTokenException.class)
+    public ResponseEntity<ServerMessage> handleUnknownRefreshTokenException(UnknownRefreshTokenException e){
+        log.info(e.getMessage());
+        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(new ServerMessage("You need to signIn."));
     }
 
     @org.springframework.web.bind.annotation.ExceptionHandler(AccountNotFoundException.class)

@@ -1,15 +1,21 @@
 package com.authService.app.Services.Account;
 
 import com.authService.app.Config.Exceptions.AccountNotFoundException;
+import com.authService.app.Config.Exceptions.TokenExpiredException;
+import com.authService.app.Config.Exceptions.UnknownRefreshTokenException;
 import com.authService.app.Config.Services.JwtService;
 import com.authService.app.Config.Services.MyUserDetailsService;
+import com.authService.app.Config.Services.RefreshTokenService;
 import com.authService.app.Models.Account;
 import com.authService.app.Models.Records.AccountRecord;
 import com.authService.app.Models.Records.AuthRecord;
 import com.authService.app.Models.Records.LoginRecord;
+import com.authService.app.Models.RefreshToken;
 import com.authService.app.Services.Account.Interfaces.SignInInterface;
 import com.authService.app.Services.Email.MaintenanceMailService;
 import com.fasterxml.jackson.core.JsonProcessingException;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.coyote.BadRequestException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -17,9 +23,11 @@ import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
 @Service
+@RequiredArgsConstructor
 public class SignInService implements SignInInterface {
 
     private final AccountRetrievalService accountRetrievalService;
@@ -30,15 +38,9 @@ public class SignInService implements SignInInterface {
 
     private final JwtService jwtService;
 
-    private final String loginFailMessage = "Invalid username or password.";
+    private final RefreshTokenService refreshTokenService;
 
-    @Autowired
-    public SignInService(AccountRetrievalService accountRetrievalService, MaintenanceMailService maintenanceMailService, AuthenticationManager authenticationManager, JwtService jwtService) {
-        this.accountRetrievalService = accountRetrievalService;
-        this.maintenanceMailService = maintenanceMailService;
-        this.authenticationManager = authenticationManager;
-        this.jwtService = jwtService;
-    }
+    private final String loginFailMessage = "Invalid username or password.";
 
     @Override
     public AuthRecord signIn(LoginRecord loginRecord, String ipAddress) throws AccountNotFoundException, BadRequestException, JsonProcessingException {
@@ -59,7 +61,8 @@ public class SignInService implements SignInInterface {
                     new UsernamePasswordAuthenticationToken(toLogin.getId(),loginRecord.password())
             );
             if(authentication.isAuthenticated()){
-                return new AuthRecord(jwtService.generateToken(toLogin.getId(),ipAddress,toLogin.getAuthorities()));
+                String refreshToken = refreshTokenService.createRefreshToken(toLogin.getId(),ipAddress).getToken();
+                return new AuthRecord(jwtService.generateToken(toLogin.getId(),ipAddress,toLogin.getAuthorities()),refreshToken);
             }else{
                 throw new BadCredentialsException(loginFailMessage);
             }
@@ -70,7 +73,21 @@ public class SignInService implements SignInInterface {
     }
 
     @Override
-    public void logout(String token) {
+    public String refreshAccessToken(String refreshToken,String ipAddress) throws UnknownRefreshTokenException, TokenExpiredException {
+        if(refreshToken == null){
+            throw new UnknownRefreshTokenException("Refresh token is null!");
+        }
+        if(!refreshTokenService.validateRefreshToken(refreshToken,ipAddress)){
+            return null;
+        }
+        RefreshToken refresh = refreshTokenService.findToken(refreshToken);
+        Account user = accountRetrievalService.getRawAccountById(refresh.getAccountId());
+        return jwtService.generateToken(user.getId(),ipAddress,user.getAuthorities());
+    }
+
+    @Override
+    public void logout(String token,String refreshToken) {
         jwtService.invalidateToken(token);
+        refreshTokenService.removeRefreshToken(refreshToken);
     }
 }

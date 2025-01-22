@@ -14,6 +14,7 @@ import org.springframework.stereotype.Service;
 import java.security.Key;
 import java.util.*;
 import java.util.function.Function;
+import java.util.stream.Collectors;
 
 @Service
 public class JwtService {
@@ -52,8 +53,13 @@ public class JwtService {
     public String generateToken(String userId, String userIP, Collection<? extends GrantedAuthority> roles){
         Map<String,Object> claims = new HashMap<>();
         claims.put("IP",userIP);
-        claims.put("roles",roles);
-        return createToken(claims,userId,60 * 60 * 1000);
+        claims.put(
+                "roles",
+                roles.stream()
+                        .map(GrantedAuthority::getAuthority)
+                        .collect(Collectors.toList())
+        );
+        return createToken(claims,userId,15 * 60 * 1000);
     }
 
 
