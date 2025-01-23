@@ -20,6 +20,18 @@ public class KafkaTopicConfig {
                 .build();
     }
 
+    @Bean
+    public NewTopic accountBannedMailTopic(){
+        return TopicBuilder.name("account_banned_mail")
+                .build();
+    }
+
+    @Bean
+    public NewTopic accountUnbannedMailTopic(){
+        return TopicBuilder.name("account_unbanned_mail")
+                .build();
+    }
+
 
 
 

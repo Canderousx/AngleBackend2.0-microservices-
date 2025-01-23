@@ -36,6 +36,12 @@ public class AccountRetrievalService implements AccountRetrieval {
 
 
     @Override
+    @Cacheable(value = "auth_cache",key = "#id +'__email'")
+    public String getEmail(String id) {
+        return accountRepository.getEmailById(id);
+    }
+
+    @Override
     @Cacheable(value = "auth_cache",key = "#id +'__username'")
     public String getUsername(String id) {
         return accountRepository.getUsernameById(id);

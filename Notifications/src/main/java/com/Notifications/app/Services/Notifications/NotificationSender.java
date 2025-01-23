@@ -2,6 +2,7 @@ package com.Notifications.app.Services.Notifications;
 
 
 import com.Notifications.app.Models.Notification;
+import com.Notifications.app.Models.Records.BanData;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
@@ -23,6 +24,14 @@ public class NotificationSender {
                 "queue/notification",
                 notification
         );
+    }
 
+    public void handleAccountBanned(BanData banData){
+        log.info("sending ban alert to {}",banData.reportedId());
+        messagingTemplate.convertAndSendToUser(
+               banData.reportedId(),
+               "queue/accountBanned",
+               "You've been banned. Check your email for more details."
+        );
     }
 }

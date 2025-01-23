@@ -57,6 +57,10 @@ public class AccountData {
     public boolean usernameExists(@RequestParam String username){
         return accountRetrievalService.usernameExists(username);
     }
+    @RequestMapping(value = "getUsername",method = RequestMethod.GET)
+    public String getUsername(@RequestParam String id){
+        return accountRetrievalService.getUsername(id);
+    }
 
     @RequestMapping(value = "getUserById",method = RequestMethod.GET)
     public AccountRecord getUserById(@RequestParam String id){

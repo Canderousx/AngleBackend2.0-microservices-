@@ -5,10 +5,12 @@ import com.authService.app.Config.Services.JwtService;
 import com.authService.app.Models.Account;
 import com.authService.app.Models.EnvironmentVariables;
 import com.authService.app.Models.Records.AccountRecord;
+import com.authService.app.Models.Records.BanData;
 import com.authService.app.Models.Records.MaintenanceMail;
 import com.authService.app.Services.Account.AccountRetrievalService;
 import com.authService.app.Services.Account.SignUpService;
 import com.authService.app.Services.Email.Interfaces.MaintenanceMailInterface;
+import com.authService.app.Services.JsonUtils;
 import com.authService.app.Services.Kafka.KafkaSenderService;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -33,10 +35,25 @@ public class MaintenanceMailService implements MaintenanceMailInterface {
         this.accountRetrievalService = accountRetrievalService;
     }
 
-    private String mailDataToJson(String email, String token) throws JsonProcessingException {
-        MaintenanceMail maintenanceMail = new MaintenanceMail(email,token);
-        ObjectMapper mapper = new ObjectMapper();
-        return mapper.writeValueAsString(maintenanceMail);
+    private String mailDataToJson(String email, String content) throws JsonProcessingException {
+        MaintenanceMail maintenanceMail = new MaintenanceMail(email,content);
+        return JsonUtils.toJson(maintenanceMail);
+    }
+
+
+    @Override
+    public void accountBanned(BanData banData) throws JsonProcessingException {
+        String email = accountRetrievalService.getEmail(banData.reportedId());
+        String jsonData = mailDataToJson(email,banData.reason());
+        kafkaSenderService.send("account_banned_mail",jsonData);
+    }
+
+    @Override
+    public void accountUnbanned(BanData banData) throws JsonProcessingException {
+        String email = accountRetrievalService.getEmail(banData.reportedId());
+        String jsonData = mailDataToJson(email,banData.reason());
+        kafkaSenderService.send("account_unbanned_mail",jsonData);
+
     }
 
     @Override

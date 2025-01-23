@@ -28,10 +28,13 @@ public class Report {
     @Column(columnDefinition = "VARCHAR(36)")
     private String reporterId;
 
+    private String reporterName;
+
     @JdbcTypeCode(SqlTypes.VARCHAR)
     @Column(columnDefinition = "VARCHAR(36)")
     private String reportedAccountId;
 
+    private String reportedName;
 
     @JdbcTypeCode(SqlTypes.VARCHAR)
     @Column(columnDefinition = "VARCHAR(36)")

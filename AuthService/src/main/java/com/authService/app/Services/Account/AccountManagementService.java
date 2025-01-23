@@ -3,7 +3,10 @@ package com.authService.app.Services.Account;
 import com.authService.app.Config.Exceptions.AccountNotFoundException;
 import com.authService.app.Config.Exceptions.TokenExpiredException;
 import com.authService.app.Config.Services.JwtService;
+import com.authService.app.Config.Services.RefreshTokenService;
 import com.authService.app.Models.Account;
+import com.authService.app.Models.Records.BanData;
+import com.authService.app.Models.RefreshToken;
 import com.authService.app.Repositories.AccountRepository;
 import com.authService.app.Services.Account.Interfaces.AccountManagement;
 import com.authService.app.Services.Email.MaintenanceMailService;
@@ -38,6 +41,8 @@ public class AccountManagementService implements AccountManagement {
 
     private final JwtService jwtService;
 
+    private final RefreshTokenService refreshTokenService;
+
 
     @Override
     public void confirmEmail(String token) throws AccountNotFoundException, BadRequestException, JsonProcessingException {
@@ -67,13 +72,17 @@ public class AccountManagementService implements AccountManagement {
     }
 
     @Override
-    public void banAccount(String id){
-        accountRepository.banAccount(id);
+    public void banAccount(BanData banData) throws JsonProcessingException {
+        refreshTokenService.removeUserTokens(banData.reportedId());
+        accountRepository.banAccount(banData.reportedId());
+        maintenanceMailService.accountBanned(banData);
     }
 
     @Override
-    public void unbanAccount(String id){
-        accountRepository.unbanAccount(id);
+    public void unbanAccount(BanData banData) throws JsonProcessingException {
+        accountRepository.unbanAccount(banData.reportedId());
+        maintenanceMailService.accountUnbanned(banData);
+
     }
 
     @Override

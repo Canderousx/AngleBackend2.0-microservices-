@@ -36,4 +36,16 @@ public class KafkaListeners {
         logger.info("Received email confirmation request.");
         mailService.confirmationEmail(data);
     }
+
+    @KafkaListener(topics = "account_banned_mail",groupId = "mail-group")
+    void accountBannedMail(String data) throws JsonProcessingException {
+        logger.info("Received email confirmation request.");
+        mailService.accountBannedMail(data);
+    }
+
+    @KafkaListener(topics = "account_unbanned_mail",groupId = "mail-group")
+    void accountUnbannedMail(String data) throws JsonProcessingException {
+        logger.info("Received email confirmation request.");
+        mailService.accountUnbannedMail(data);
+    }
 }

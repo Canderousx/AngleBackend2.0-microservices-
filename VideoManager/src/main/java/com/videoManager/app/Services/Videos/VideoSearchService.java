@@ -38,7 +38,6 @@ public class VideoSearchService implements VideoSearchInterface {
     }
 
     @Override
-    @Cacheable(value = "video_cache",key = "#query + '__' + #page +'__' + #pageSize")
     public Page<VideoProjection> findVideos(String query, int page, int pageSize) {
         Pageable pageable = PageRequest.of(page,pageSize);
         return videoRepository.findByNameContainingOrTagsNameContaining(query,query,pageable);

@@ -2,6 +2,7 @@ package com.authService.app.Services.Account.Interfaces;
 
 import com.authService.app.Config.Exceptions.AccountNotFoundException;
 import com.authService.app.Config.Exceptions.TokenExpiredException;
+import com.authService.app.Models.Records.BanData;
 import com.authService.app.Models.Records.VideoRating;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import org.apache.coyote.BadRequestException;
@@ -17,9 +18,9 @@ public interface AccountManagement {
 
     void restorePassword(String newPassword, String token) throws AccountNotFoundException, TokenExpiredException;
 
-    void banAccount(String id) throws AccountNotFoundException;
+    void banAccount(BanData banData) throws AccountNotFoundException, JsonProcessingException;
 
-    void unbanAccount(String id) throws AccountNotFoundException;
+    void unbanAccount(BanData banData) throws AccountNotFoundException, JsonProcessingException;
 
 
 }

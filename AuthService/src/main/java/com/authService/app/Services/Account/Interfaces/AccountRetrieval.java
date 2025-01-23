@@ -24,6 +24,8 @@ public interface AccountRetrieval {
 
     long countSubscribers(String channelId);
 
+    String getEmail(String id);
+
     String getUsername(String id);
 
     FileSystemResource getAvatar(String id);

@@ -27,10 +27,30 @@ public class MaintenanceMailService implements MaintenanceMailInterface {
         return mapper.readValue(json,MaintenanceMailData.class);
     }
 
+
+    @Override
+    public void accountBannedMail(String jsonData) throws JsonProcessingException {
+        MaintenanceMailData mailData = readJson(jsonData);
+        String message = "Dear Sir or Madam \n\n\n\n" +
+                "Your account has been banned due to our administration judgement. \n\n" +
+                "REASON: "+mailData.content();
+        this.emailSenderService.sendEmail(mailData.email(),"Angle: Your Account has been banned",message);
+    }
+
+    @Override
+    public void accountUnbannedMail(String jsonData) throws JsonProcessingException {
+        MaintenanceMailData mailData = readJson(jsonData);
+        String message = "Dear Sir or Madam \n\n\n\n" +
+                "Your account has been unbanned due to our administration judgement. We're very sorry for our previous verdict. \n\n" +
+                "REASON: "+mailData.content();
+        this.emailSenderService.sendEmail(mailData.email(),"Angle: Your Account has been unbanned!",message);
+
+    }
+
     @Override
     public void restorePassword(String jsonData) throws JsonProcessingException {
         MaintenanceMailData mailData = readJson(jsonData);
-        String restoreUrl = "/restorePassword?id="+mailData.token();
+        String restoreUrl = "/restorePassword?id="+mailData.content();
         String message = "Dear Sir or Madam"+", \n\n\n\n" +
                 "Here is the link to restore your password :\n" +
                 environmentVariables.getAngleFrontUrl()+restoreUrl+"\n" +
@@ -53,7 +73,7 @@ public class MaintenanceMailService implements MaintenanceMailInterface {
         MaintenanceMailData mailData = readJson(jsonData);
         String message = "Dear Sir or Madam"+",\n\n\n\n" +
                 "Here is your confirmation link to activate your angle account: \n" +
-                environmentVariables.getAngleFrontUrl()+"/confirmAccount?id="+mailData.token();
+                environmentVariables.getAngleFrontUrl()+"/confirmAccount?id="+mailData.content();
         emailSenderService.sendEmail(mailData.email(),"Account Email Confirmation",message);
     }
 }

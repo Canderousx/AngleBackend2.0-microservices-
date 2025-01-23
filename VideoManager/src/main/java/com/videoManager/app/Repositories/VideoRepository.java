@@ -175,7 +175,7 @@ public interface VideoRepository extends JpaRepository<Video, String> {
 
     @Modifying
     @Transactional
-    @Query(value = "UPDATE video SET isbanned = true WHERE author_id = :accountId", nativeQuery = true)
+    @Query(value = "UPDATE video SET isbanned = true WHERE authorid = :accountId", nativeQuery = true)
     void banAllUserVideos(@RequestParam("accountId") String accountId);
 
 
@@ -186,7 +186,7 @@ public interface VideoRepository extends JpaRepository<Video, String> {
 
     @Modifying
     @Transactional
-    @Query(value = "UPDATE video SET isbanned = false WHERE author_id = :accountId", nativeQuery = true)
+    @Query(value = "UPDATE video SET isbanned = false WHERE authorid = :accountId", nativeQuery = true)
     void unbanAllUserVideos(@RequestParam("accountId") String accountId);
 
     @Query(value = "SELECT count(*) FROM video v WHERE v.authorId = :accountId", nativeQuery = true)

@@ -12,7 +12,9 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RestController;
 
+@RestController
 @RequestMapping("/admin")
 @RequiredArgsConstructor
 public class ReportManagement {
@@ -25,7 +27,7 @@ public class ReportManagement {
         return ReportSolutions.toArray();
     }
 
-    @RequestMapping(value = "/solveReport",method = RequestMethod.GET)
+    @RequestMapping(value = "/solveReport",method = RequestMethod.POST)
     public ResponseEntity<ServerMessage>solveReport(@RequestBody ReportSolution reportSolution) throws SolutionDoesNotExistException, ReportNotFoundException {
         reportManagementService.solveReport(reportSolution);
         return ResponseEntity.ok(new ServerMessage("Report has been solved. Thank you!"));

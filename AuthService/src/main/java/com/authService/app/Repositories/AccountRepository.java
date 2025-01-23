@@ -28,6 +28,9 @@ public interface AccountRepository extends JpaRepository<Account,String> {
 
     List<Account> findByActive(boolean active);
 
+    @Query(value = "SELECT email FROM account WHERE id = :id",nativeQuery = true)
+    String getEmailById(@Param("id")String id);
+
     @Query(value = "SELECT username FROM account WHERE id = :accountId",nativeQuery = true)
     String getUsernameById(@Param("accountId")String accountId);
 

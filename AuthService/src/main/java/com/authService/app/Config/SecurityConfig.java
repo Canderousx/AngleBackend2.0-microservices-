@@ -50,6 +50,7 @@ public class SecurityConfig implements WebMvcConfigurer {
                 "/signUp/**",
                 "/accounts/media/**",
                 "/accounts/getUserById",
+                "/accounts/getUsername",
                 "/accounts/emailExists",
                 "/accounts/usernameExists",
                 "/accounts/countSubscribers"

@@ -11,6 +11,7 @@ import com.reportService.app.Models.ReportCategories;
 import com.reportService.app.Models.ReportSolutions;
 import com.reportService.app.Models.ReportTypes;
 import com.reportService.app.Repositories.ReportRepository;
+import com.reportService.app.Services.API.Interfaces.AuthServiceAPI;
 import com.reportService.app.Services.JsonUtils;
 import com.reportService.app.Services.Kafka.KafkaSenderService;
 import com.reportService.app.Services.Report.Interfaces.ReportManagementInterface;
@@ -31,6 +32,8 @@ public class ReportManagementService implements ReportManagementInterface {
     private final ReportRepository reportRepository;
 
     private final KafkaSenderService kafkaSenderService;
+
+    private final AuthServiceAPI authServiceAPI;
 
 
     private BanData getBanData(Report report){
@@ -65,6 +68,9 @@ public class ReportManagementService implements ReportManagementInterface {
             throw new TypeDoesNotExistException("Report category {"+report.getCategory()+"} is not supported. Please USE: "+ReportCategories.readAll());
         }
         report.setReporterId(SecurityContextHolder.getContext().getAuthentication().getName());
+        report.setDatePublished(new Date());
+        report.setReporterName(authServiceAPI.getUsername(report.getReporterId()));
+        report.setReportedName(authServiceAPI.getUsername(report.getReportedAccountId()));
         reportRepository.save(report);
         String json = JsonUtils.toJson(report);
         kafkaSenderService.send("new_report",json);
@@ -75,6 +81,14 @@ public class ReportManagementService implements ReportManagementInterface {
         reportRepository.deleteById(id);
     }
 
+    private void handleReportSolvedAlready(Report report, String newSolution){
+        String prevSolution = report.getSolution();
+        if(newSolution.equals(ReportSolutions.CANCELED.name()) && !newSolution.equals(prevSolution)){
+            String type = report.getSolution().equals(ReportSolutions.ACCOUNT_BANNED.name()) ? "account" : report.getType();
+            unbanEvent(getBanData(report),type);
+        }
+    }
+
     @Override
     @Transactional
     @Modifying
@@ -83,6 +97,11 @@ public class ReportManagementService implements ReportManagementInterface {
             throw new SolutionDoesNotExistException("Solution {"+solution+"} is not supported. Please USE: "+ReportSolutions.readAll());
         }
         Report toSolve = retrievalService.getReport(solution.reportId());
+
+        boolean solvedAlready = toSolve.isResolved();
+        if(solvedAlready){
+            handleReportSolvedAlready(toSolve,solution.solution());
+        }
         toSolve.setSolution(solution.solution());
         toSolve.setReason(solution.reason());
         toSolve.setDateResolved(new Date());
@@ -92,14 +111,10 @@ public class ReportManagementService implements ReportManagementInterface {
 
         if(!toSolve.getSolution().equalsIgnoreCase(ReportSolutions.CANCELED.name())){
             BanData banData = getBanData(toSolve);
-            if (toSolve.getSolution().equalsIgnoreCase(ReportSolutions.ACCOUNT_BANNED.name())){
-                banEvent(banData,"account");
-            } else if (toSolve.getType().equalsIgnoreCase(ReportTypes.VIDEO.name())) {
-                banEvent(banData,"video");
-            } else if (toSolve.getType().equalsIgnoreCase(ReportTypes.COMMENT.name())) {
-                banEvent(banData,"comment");
-            }
+            String type = toSolve.getSolution().equals(ReportSolutions.ACCOUNT_BANNED.name()) ? "account" : toSolve.getType();
+            banEvent(banData,type);
         }
+
     }
 
     @Override
