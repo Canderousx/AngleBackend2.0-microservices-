@@ -39,8 +39,9 @@ public class SignIn {
     }
 
     @RequestMapping(value = "/logout",method = RequestMethod.POST)
-    public ResponseEntity<ServerMessage>logout(HttpServletRequest request,@RequestBody String refreshToken){
+    public ResponseEntity<ServerMessage>logout(HttpServletRequest request,@RequestBody Map<String,Object>data){
         String token = request.getHeader("Authentication").substring(7);
+        String refreshToken = (String) data.get("refreshToken");
         signInService.logout(token,refreshToken);
         return ResponseEntity.ok().body(new ServerMessage("You've been signed out."));
     }

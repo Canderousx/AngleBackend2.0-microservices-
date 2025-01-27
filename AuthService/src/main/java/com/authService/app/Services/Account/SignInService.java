@@ -87,7 +87,7 @@ public class SignInService implements SignInInterface {
 
     @Override
     public void logout(String token,String refreshToken) {
-        jwtService.invalidateToken(token);
         refreshTokenService.removeRefreshToken(refreshToken);
+        jwtService.invalidateToken(token);
     }
 }

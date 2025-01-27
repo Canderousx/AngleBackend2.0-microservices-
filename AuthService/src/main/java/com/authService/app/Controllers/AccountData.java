@@ -49,8 +49,7 @@ public class AccountData {
     }
 
     @RequestMapping(value = "emailExists",method = RequestMethod.GET)
-    public boolean emailExists(@RequestParam String email){
-        return accountRetrievalService.emailExists(email);
+    public boolean emailExists(@RequestParam String email){return accountRetrievalService.emailExists(email);
     }
 
     @RequestMapping(value = "usernameExists",method = RequestMethod.GET)
