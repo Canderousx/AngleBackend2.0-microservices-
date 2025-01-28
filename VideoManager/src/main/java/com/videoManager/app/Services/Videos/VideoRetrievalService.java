@@ -2,6 +2,7 @@ package com.videoManager.app.Services.Videos;
 
 
 
+import com.videoManager.app.Config.Exceptions.MediaBannedException;
 import com.videoManager.app.Config.Exceptions.MediaNotFoundException;
 import com.videoManager.app.Models.Records.VideoLikesNDislikes;
 import com.videoManager.app.Models.Records.VideoRecord;
@@ -84,6 +85,7 @@ public class VideoRetrievalService implements VideoRetrievalInterface {
     }
 
     @Override
+    @Cacheable(value = "video_cache",key = "#videoId +'__raw_video'",unless = "#result == null")
     public Video getRawVideo(String videoId) throws MediaNotFoundException {
         Video video = this.videoRepository.findById(videoId).orElse(null);
         if(video!=null){
@@ -93,8 +95,11 @@ public class VideoRetrievalService implements VideoRetrievalInterface {
     }
 
     @Override
-    public VideoRecord getVideo(String videoId) throws MediaNotFoundException {
+    public VideoRecord getVideo(String videoId) throws MediaNotFoundException, MediaBannedException {
         Video video = getRawVideo(videoId);
+        if(video.isBanned()){
+            throw new MediaBannedException("Video is banned.");
+        }
         return new VideoRecord(
                 video.getId(),
                 video.getAuthorId(),

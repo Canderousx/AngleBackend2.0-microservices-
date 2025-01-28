@@ -1,6 +1,7 @@
 package com.videoManager.app.Controllers;
 
 
+import com.videoManager.app.Config.Exceptions.MediaBannedException;
 import com.videoManager.app.Config.Exceptions.MediaNotFoundException;
 import com.videoManager.app.Models.Projections.VideoProjection;
 import com.videoManager.app.Models.Records.RateRecord;
@@ -33,7 +34,7 @@ public class VideosData {
     }
 
     @RequestMapping(value = "/getVideo",method = RequestMethod.GET)
-    public VideoRecord getVideo(@RequestParam String id) throws MediaNotFoundException {
+    public VideoRecord getVideo(@RequestParam String id) throws MediaNotFoundException, MediaBannedException {
         return videoRetrievalService.getVideo(id);
     }
     @RequestMapping(value = "/getUserVideos",method = RequestMethod.GET)

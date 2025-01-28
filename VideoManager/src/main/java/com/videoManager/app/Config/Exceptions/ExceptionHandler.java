@@ -5,6 +5,7 @@ import org.apache.coyote.BadRequestException;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.HttpStatusCode;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authorization.AuthorizationDeniedException;
@@ -24,6 +25,11 @@ public class ExceptionHandler {
     @org.springframework.web.bind.annotation.ExceptionHandler(InvalidDataException.class)
     public ResponseEntity<ServerMessage> handleInvalidDataException(InvalidDataException e){
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new ServerMessage(e.getMessage()));
+    }
+
+    @org.springframework.web.bind.annotation.ExceptionHandler(MediaBannedException.class)
+    public ResponseEntity<ServerMessage> handleMediaBannedException(MediaBannedException e){
+        return ResponseEntity.status(HttpStatusCode.valueOf(666)).body(new ServerMessage(e.getMessage()));
     }
 
     @org.springframework.web.bind.annotation.ExceptionHandler(RuntimeException.class)

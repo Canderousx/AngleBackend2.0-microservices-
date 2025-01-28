@@ -1,5 +1,6 @@
 package com.videoManager.app.Services.Videos.Interfaces;
 
+import com.videoManager.app.Config.Exceptions.MediaBannedException;
 import com.videoManager.app.Config.Exceptions.MediaNotFoundException;
 import com.videoManager.app.Models.Projections.VideoProjection;
 import com.videoManager.app.Models.Records.VideoDetails;
@@ -23,9 +24,9 @@ public interface VideoRetrievalInterface {
 
     String getAuthorId(String videoId);
 
-    Video getRawVideo(String videoId) throws MediaNotFoundException, IOException, ClassNotFoundException;
+    Video getRawVideo(String videoId) throws MediaNotFoundException, IOException, ClassNotFoundException, MediaBannedException;
 
-    VideoRecord getVideo(String videoId) throws MediaNotFoundException;
+    VideoRecord getVideo(String videoId) throws MediaNotFoundException, MediaBannedException;
 
     VideoLikesNDislikes getVideoLikesNDislikes(String videoId);
 

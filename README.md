@@ -1,8 +1,6 @@
 ### **Important: This version of Angle Backend is under active development and heavy refactoring. It is not finished and may undergo significant changes at any time.**
 
-This project is the newest iteration of Angle Backend (see: https://github.com/Canderousx/AngleBackend) and it is incompatible with the current Angle Frontend (see: https://github.com/Canderousx/Angle_Frontend). 
-
-**A new frontend that supports this version is still under initial development**.
+This project is the newest iteration of Angle Backend (see: https://github.com/Canderousx/AngleBackend) and it is compatible with the newest version of Angle Frontend (see: https://github.com/Canderousx/AngleFrontend2.0).
 
 
 ## What's new?

@@ -84,9 +84,14 @@ public class ReportManagementService implements ReportManagementInterface {
     private void handleReportSolvedAlready(Report report, String newSolution){
         String prevSolution = report.getSolution();
         if(newSolution.equals(ReportSolutions.CANCELED.name()) && !newSolution.equals(prevSolution)){
-            String type = report.getSolution().equals(ReportSolutions.ACCOUNT_BANNED.name()) ? "account" : report.getType();
+            String type = prevSolution.equals(ReportSolutions.ACCOUNT_BANNED.name()) ? "account" : report.getType();
             unbanEvent(getBanData(report),type);
         }
+        if (newSolution.equals(ReportSolutions.MEDIA_BANNED.name()) && prevSolution.equals(ReportSolutions.ACCOUNT_BANNED.name())){
+            String type = "account";
+            unbanEvent(getBanData(report),type);
+        }
+
     }
 
     @Override
