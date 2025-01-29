@@ -42,6 +42,13 @@ spring:
             - Path=/api/reports-manager/**
           filters:
             - StripPrefix=2
+
+        - id: stats-service
+          uri: http://localhost:7706
+          predicates:
+            - Path=/api/stats-service/**
+          filters:
+            - StripPrefix=2
 logging:
   level:
     org.springframework.cloud.gateway: DEBUG

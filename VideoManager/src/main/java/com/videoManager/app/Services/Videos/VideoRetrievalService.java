@@ -12,10 +12,8 @@ import com.videoManager.app.Repositories.VideoRatingRepository;
 import com.videoManager.app.Repositories.VideoRepository;
 import com.videoManager.app.Services.API.AuthServiceAPIService;
 import com.videoManager.app.Services.Cache.CacheService;
-import com.videoManager.app.Services.Cache.PageWrapper;
 import com.videoManager.app.Services.Videos.Interfaces.VideoRetrievalInterface;
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -26,10 +24,8 @@ import org.springframework.stereotype.Service;
 
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -88,6 +84,7 @@ public class VideoRetrievalService implements VideoRetrievalInterface {
     @Cacheable(value = "video_cache",key = "#videoId +'__raw_video'",unless = "#result == null")
     public Video getRawVideo(String videoId) throws MediaNotFoundException {
         Video video = this.videoRepository.findById(videoId).orElse(null);
+
         if(video!=null){
             return video;
         }
