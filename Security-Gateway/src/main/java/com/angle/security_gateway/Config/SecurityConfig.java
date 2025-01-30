@@ -25,7 +25,7 @@ public class SecurityConfig implements WebFluxConfigurer {
     @Override
     public void addCorsMappings(CorsRegistry registry) {
         registry.addMapping("/**")
-                .allowedOrigins("http://localhost:4200")
+                .allowedOrigins("http://localhost:4200","http://192.168.100.36:4200")
                 .allowedMethods("GET", "POST", "PUT", "DELETE","PATCH", "OPTIONS")
                 .allowedHeaders("Authentication", "Cache-Control", "Content-Type")
                 .exposedHeaders("Authentication","Unseen")
@@ -35,7 +35,7 @@ public class SecurityConfig implements WebFluxConfigurer {
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration corsConfig = new CorsConfiguration();
-        corsConfig.setAllowedOrigins(List.of("http://localhost:4200"));
+        corsConfig.setAllowedOrigins(List.of("http://localhost:4200","http://192.168.100.36:4200"));
         corsConfig.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"));
         corsConfig.setAllowedHeaders(List.of("Authentication", "Cache-Control", "Content-Type"));
         corsConfig.setExposedHeaders(List.of("Authentication","Unseen"));

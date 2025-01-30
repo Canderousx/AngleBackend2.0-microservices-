@@ -65,7 +65,7 @@ public class JwtAuthFilter extends OncePerRequestFilter {
                 if(!account.isActive()){
                     throw new AccountBannedException("Account banned.");
                 }
-                String userIP = request.getRemoteAddr();
+                String userIP = request.getHeader("X-Forwarded-For");
                 if(jwtService.validateToken(token,account,userIP)){
                     UsernamePasswordAuthenticationToken authToken = new UsernamePasswordAuthenticationToken(
                             userId,null,account.getAuthorities()

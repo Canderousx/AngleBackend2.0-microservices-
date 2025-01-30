@@ -1,9 +1,12 @@
 package com.statsService.app.Services.VideoView.Interfaces;
 
-import com.statsService.app.Models.Records.WatchTimeRecord;
-
 public interface VideoViewManagementInterface {
 
-    void registerView(WatchTimeRecord watchTime,String ip);
+
+    void onPlay(String userId,String videoId);
+
+    void onPause(String userId,String videoId);
+
+    void onEnded(String userId,String videoId);
 
 }

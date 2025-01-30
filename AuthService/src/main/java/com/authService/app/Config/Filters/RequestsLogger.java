@@ -19,7 +19,7 @@ public class RequestsLogger extends OncePerRequestFilter {
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
         logger.info("REQUEST RECEIVED: "+request.getRequestURI());
         logger.info("METHOD: "+request.getMethod());
-        logger.info("ADDRESS: "+request.getRemoteAddr());
+        logger.info("ADDRESS: "+request.getHeader("X-Forwarded-For"));
         filterChain.doFilter(request,response);
 
     }

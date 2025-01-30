@@ -29,6 +29,7 @@ public class SecurityConfig implements WebMvcConfigurer {
     @Bean
     public String[]permitAllEndpoints(){
         return new String[]{
+                "/ws/**"
         };
     }
 
@@ -39,7 +40,7 @@ public class SecurityConfig implements WebMvcConfigurer {
                 .csrf(AbstractHttpConfigurer::disable)
                 .authorizeHttpRequests(req -> req
                         .requestMatchers(permitAllEndpoints).permitAll()
-                        .anyRequest().authenticated()
+                        .anyRequest().hasAuthority("ROLE_USER")
                 )
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .addFilterBefore(jwtAuthFilter(), UsernamePasswordAuthenticationFilter.class)

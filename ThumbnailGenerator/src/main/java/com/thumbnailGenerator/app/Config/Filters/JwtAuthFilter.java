@@ -37,7 +37,7 @@ public class JwtAuthFilter extends OncePerRequestFilter {
                 if (SecurityContextHolder.getContext().getAuthentication() == null) {
                     String userId = claims.getSubject();
                     Collection<? extends GrantedAuthority> roles = claims.get("roles", Collection.class);
-                    if(jwtService.validateToken(token,userId,request.getRemoteAddr())){
+                    if(jwtService.validateToken(token,userId,request.getHeader("X-Forwarded-For"))){
                         UsernamePasswordAuthenticationToken authToken = new UsernamePasswordAuthenticationToken(
                                 userId,
                                 null,
