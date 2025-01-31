@@ -32,39 +32,42 @@ public class VideoStatsRetrievalService implements VideoStatsRetrievalInterface 
     @Override
     public long countViews(String videoId) {
         String cacheKey = redisService.getViewsCacheKey(videoId);
-        Long views = redisService.get(cacheKey, Long.class);
+        String views = redisService.get(cacheKey, String.class);
         if(views == null){
-            views = videoViewRepository.countByVideoId(videoId);
-            redisService.add(cacheKey,views,Duration.ofHours(1));
+            Long data = videoViewRepository.countByVideoId(videoId);
+            redisService.add(cacheKey,String.valueOf(data),Duration.ofHours(1));
+            return data;
         }
-        return views;
+        return Long.parseLong(views);
     }
 
     @Override
     public long countViews(String videoId, String location) {
         return videoViewRepository.countByVideoIdAndLocation(videoId,location);
     }
-
     @Override
     public long countLikes(String videoId) {
         String cacheKey = redisService.getLikesCacheKey(videoId);
-        Long likes = redisService.get(cacheKey, Long.class);
+        String likes = redisService.get(cacheKey, String.class);
         if(likes == null){
-            likes = videoRatingRepository.countLikes(videoId);
-            redisService.add(cacheKey,likes,Duration.ofHours(1));
+            Long data = videoRatingRepository.countLikes(videoId);
+            redisService.add(cacheKey, String.valueOf(data),Duration.ofHours(1));
+            return data;
         }
-        return likes;
+        return Long.parseLong(likes);
     }
+
 
     @Override
     public long countDislikes(String videoId) {
         String cacheKey = redisService.getDislikesCacheKey(videoId);
-        Long dislikes = redisService.get(cacheKey, Long.class);
+        String dislikes = redisService.get(cacheKey, String.class);
         if(dislikes == null){
-            dislikes = videoRatingRepository.countDislikes(videoId);
-            redisService.add(cacheKey,dislikes,Duration.ofHours(1));
+            Long data = videoRatingRepository.countDislikes(videoId);
+            redisService.add(cacheKey,String.valueOf(data),Duration.ofHours(1));
+            return data;
         }
-        return dislikes;
+        return Long.parseLong(dislikes);
     }
 
     private String getVideoRatingFromRedis(String accountId,String videoId){
