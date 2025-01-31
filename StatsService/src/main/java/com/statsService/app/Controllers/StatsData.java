@@ -3,7 +3,7 @@ package com.statsService.app.Controllers;
 
 import com.statsService.app.Models.Records.VideoViewDetailsRecord;
 import com.statsService.app.Services.Subscription.SubscriptionRetrievalService;
-import com.statsService.app.Services.VideoView.VideoViewRetrievalService;
+import com.statsService.app.Services.VideoStats.VideoStatsRetrievalService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -20,7 +20,7 @@ public class StatsData {
 
     private final SubscriptionRetrievalService subscriptionRetrievalService;
 
-    private final VideoViewRetrievalService videoViewRetrievalService;
+    private final VideoStatsRetrievalService videoStatsRetrievalService;
 
     @RequestMapping(value = "getSubscribedChannelsRandom",method = RequestMethod.GET)
     public List<String> getSubscribedIds(@RequestParam int quantity){
@@ -35,12 +35,12 @@ public class StatsData {
 
     @RequestMapping(value = "countViews",method = RequestMethod.GET)
     public Long countViews(@RequestParam String videoId){
-        return videoViewRetrievalService.countViews(videoId);
+        return videoStatsRetrievalService.countViews(videoId);
     }
 
     @RequestMapping(value = "getViewsPerLocation",method = RequestMethod.GET)
     public List<VideoViewDetailsRecord>getViewsPerLocation(@RequestParam String videoId){
-        return videoViewRetrievalService.getViewsDescByLocation(videoId);
+        return videoStatsRetrievalService.getViewsDescByLocation(videoId);
     }
 
 }

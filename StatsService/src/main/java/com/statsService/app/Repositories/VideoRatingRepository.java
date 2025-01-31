@@ -26,10 +26,10 @@ public interface VideoRatingRepository extends JpaRepository<VideoRating,String>
 
 
     @Query(value = "SELECT COUNT(*) FROM video_rating WHERE video_id = :videoId AND rating = 'like'", nativeQuery = true)
-    long countLikes(@Param("videoId") String videoId);
+    Long countLikes(@Param("videoId") String videoId);
 
     @Query(value = "SELECT COUNT(*) FROM video_rating WHERE video_id = :videoId AND rating = 'dislike'", nativeQuery = true)
-    long countDislikes(@Param("videoId") String videoId);
+    Long countDislikes(@Param("videoId") String videoId);
 
 
 

@@ -20,6 +20,8 @@ public class WatchTime {
 
     private long accumulatedWatchTime;
 
+    private long timePaused;
+
 
 
     public VideoView toVideoView(){

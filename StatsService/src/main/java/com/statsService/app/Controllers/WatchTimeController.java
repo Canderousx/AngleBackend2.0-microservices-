@@ -1,8 +1,10 @@
 package com.statsService.app.Controllers;
-import com.statsService.app.Services.VideoView.VideoViewManagementService;
+import com.statsService.app.Services.VideoStats.VideoStatsManagementService;
+import com.statsService.app.Services.VideoStats.VideoStatsRetrievalService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.messaging.handler.annotation.MessageMapping;
+import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Controller;
 
 import java.security.Principal;
@@ -13,7 +15,11 @@ import java.util.Map;
 @Slf4j
 public class WatchTimeController {
 
-    private final VideoViewManagementService videoViewManagementService;
+    private final VideoStatsManagementService videoStatsManagementService;
+
+    private final VideoStatsRetrievalService videoStatsRetrievalService;
+
+    private final SimpMessagingTemplate simpMessagingTemplate;
 
 
     @MessageMapping("/onPlay")
@@ -24,7 +30,7 @@ public class WatchTimeController {
             log.error("Unable to handle onPlay event. VideoId is null!!");
             return;
         }
-        videoViewManagementService.onPlay(principal.getName(), videoId);
+        videoStatsManagementService.onPlay(principal.getName(), videoId);
     }
 
     @MessageMapping("/onPause")
@@ -35,7 +41,7 @@ public class WatchTimeController {
             log.error("Unable to handle onPause event. VideoId is null!!");
             return;
         }
-        videoViewManagementService.onPause(principal.getName(), videoId);
+        videoStatsManagementService.onPause(principal.getName(), videoId);
     }
 
     @MessageMapping("/onEnded")
@@ -46,7 +52,16 @@ public class WatchTimeController {
             log.error("Unable to handle onEnded event. VideoId is null!!");
             return;
         }
-        videoViewManagementService.onEnded(principal.getName(), videoId);
+        videoStatsManagementService.onEnded(principal.getName(), videoId);
+    }
+
+    @MessageMapping("/rateVideo")
+    public void likeVideo(Map<String,Object> payload,Principal principal){
+        if(principal.getName().contains("ANONYMOUS")){
+            return;
+        }
+        String rating = (String) payload.get("rating");
+
     }
 
 

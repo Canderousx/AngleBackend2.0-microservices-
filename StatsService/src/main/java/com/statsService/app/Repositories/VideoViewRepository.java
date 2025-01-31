@@ -16,9 +16,9 @@ import java.util.List;
 @Repository
 public interface VideoViewRepository extends JpaRepository<VideoView,String> {
 
-    long countByVideoId(String videoId);
+    Long countByVideoId(String videoId);
 
-    long countByVideoIdAndLocation(String videoId,String location);
+    Long countByVideoIdAndLocation(String videoId,String location);
 
     Page<VideoView>findByVideoIdAndLocation(String videoId, String location, Pageable pageable);
 

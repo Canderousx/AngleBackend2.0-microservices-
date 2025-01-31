@@ -29,6 +29,11 @@ public class ExceptionHandler {
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new ServerMessage(e.getBindingResult().getFieldError().getDefaultMessage()));
     }
 
+    @org.springframework.web.bind.annotation.ExceptionHandler(value = UnknownRatingException.class)
+    public ResponseEntity<ServerMessage> unknownVideoRatingException(UnknownRatingException e){
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(new ServerMessage(e.getMessage()));
+    }
+
 
 
 

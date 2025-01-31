@@ -29,7 +29,8 @@ public class SecurityConfig implements WebMvcConfigurer {
     @Bean
     public String[]permitAllEndpoints(){
         return new String[]{
-                "/ws/**"
+                "/ws/**",
+                "/watchData/*"
         };
     }
 

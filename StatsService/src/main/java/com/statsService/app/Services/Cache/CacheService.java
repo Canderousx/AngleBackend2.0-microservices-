@@ -12,6 +12,7 @@ import java.util.function.BiFunction;
 import java.util.function.Function;
 
 @Service
+@Deprecated
 public class CacheService {
 
     private final CacheManager cacheManager;
@@ -20,14 +21,14 @@ public class CacheService {
         this.cacheManager = cacheManager;
     }
 
-    @Cacheable(value = "video_cache", key = "#identifier",unless = "#result == null")
+    @Cacheable(value = "stats_cache", key = "#identifier",unless = "#result == null")
     public <T> T getWithCache(String identifier, Function<String, T> fetcher) {
         String arg = identifier.split("__")[0];
         return fetcher.apply(arg);
     }
 
 
-    @Cacheable(value = "video_cache", key = "#identifier",unless = "#result == null")
+    @Cacheable(value = "stats_cache", key = "#identifier",unless = "#result == null")
     public <T> T getWithCache(String identifier, BiFunction<String, String, T> fetcher) {
         if (identifier.contains("__")) {
             String[] args = identifier.split("__");
@@ -36,7 +37,7 @@ public class CacheService {
         throw new IllegalArgumentException("Identifier format mismatch for BiFunction");
     }
 
-    @Cacheable(value = "video_cache", key = "#identifier",unless = "#result == null")
+    @Cacheable(value = "stats_cache", key = "#identifier",unless = "#result == null")
     public <T> T getWithCache(String identifier, TriFunction<String, String,String, T> fetcher) {
         if (identifier.contains("__")) {
             String[] args = identifier.split("__");
@@ -45,7 +46,7 @@ public class CacheService {
         throw new IllegalArgumentException("Identifier format mismatch for TriFunction");
     }
 
-    @Cacheable(value = "video_cache", key = "#identifier",unless = "#result == null")
+    @Cacheable(value = "stats_cache", key = "#identifier",unless = "#result == null")
     public <T> PageWrapper<T> getPageWithCache(String identifier, Function<Pageable, Page<T>> fetcher) {
         if (identifier.contains("__")) {
             String[] args = identifier.split("__");
@@ -58,7 +59,7 @@ public class CacheService {
         throw new IllegalArgumentException("Identifier format mismatch");
     }
 
-    @Cacheable(value = "video_cache", key = "#identifier",unless = "#result == null")
+    @Cacheable(value = "stats_cache", key = "#identifier",unless = "#result == null")
     public <T> PageWrapper<T> getPageWithCache(String identifier, BiFunction<String,Pageable, Page<T>> fetcher) {
         if (identifier.contains("__")) {
             String[] args = identifier.split("__");
