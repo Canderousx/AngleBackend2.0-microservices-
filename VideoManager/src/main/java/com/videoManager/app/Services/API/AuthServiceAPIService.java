@@ -25,10 +25,10 @@ public class AuthServiceAPIService implements AuthServiceAPI {
 
 
     @Override
-    public List<String> getRandomSubscribedIds(String token, int quantity) {
+    public List<String> getRandomSubscribedIds(String accountId, int quantity) {
         List<String> ids = restClient.get()
                 .uri(ipaddress+"/accounts/getSubscribedChannelsRandom?quantity="+quantity)
-                .header("Authentication","Bearer "+token)
+                .header("X-Ac-Id",accountId)
                 .retrieve()
                 .onStatus(HttpStatusCode::isError, (((request, response) -> {
                     throw new RuntimeException("Couldn't connect with the Auth Service!! RESPONSE CODE: "+response.getStatusCode());

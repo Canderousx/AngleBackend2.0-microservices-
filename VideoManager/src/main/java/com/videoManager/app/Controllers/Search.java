@@ -2,7 +2,6 @@ package com.videoManager.app.Controllers;
 
 
 import com.videoManager.app.Models.Projections.VideoProjection;
-import com.videoManager.app.Models.Video;
 import com.videoManager.app.Services.Videos.VideoSearchService;
 import org.springframework.data.domain.Page;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -23,7 +22,7 @@ public class Search {
     }
 
     @RequestMapping(value = "",method = RequestMethod.GET)
-    public Page<VideoProjection>findVideos(@RequestParam String q,@RequestParam int page, @RequestParam int pageSize){
+    public Page<VideoProjection>findVideos(@RequestParam String q, @RequestParam int page, @RequestParam int pageSize){
         return searchService.findVideos(q,page,pageSize);
     }
 

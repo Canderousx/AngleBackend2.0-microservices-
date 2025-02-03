@@ -14,6 +14,12 @@ public class KafkaTopicConfig {
                 .build();
     }
 
+    @Bean
+    public NewTopic viewsUpdate(){
+        return TopicBuilder.name("views_update")
+                .build();
+    }
+
 
 
 

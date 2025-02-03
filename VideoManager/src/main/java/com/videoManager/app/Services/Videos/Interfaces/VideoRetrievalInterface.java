@@ -3,8 +3,6 @@ package com.videoManager.app.Services.Videos.Interfaces;
 import com.videoManager.app.Config.Exceptions.MediaBannedException;
 import com.videoManager.app.Config.Exceptions.MediaNotFoundException;
 import com.videoManager.app.Models.Projections.VideoProjection;
-import com.videoManager.app.Models.Records.VideoDetails;
-import com.videoManager.app.Models.Records.VideoLikesNDislikes;
 import com.videoManager.app.Models.Records.VideoRecord;
 import com.videoManager.app.Models.Video;
 import org.apache.coyote.BadRequestException;
@@ -16,36 +14,27 @@ import java.util.List;
 
 public interface VideoRetrievalInterface {
 
-    Page<VideoRecord> getAllVideos(int page,int pageSize);
+    Page<VideoProjection> getAllVideos(int page, int pageSize);
 
-    Page<VideoRecord> getUserVideos(String userId, int page, int pageSize);
+    Page<VideoProjection> getUserVideos(String userId, int page, int pageSize);
 
-    Page<VideoRecord> getCurrentUserVideos(int page, int pageSize);
+    Page<VideoProjection> getCurrentUserVideos(int page, int pageSize);
 
     String getAuthorId(String videoId);
 
     Video getRawVideo(String videoId) throws MediaNotFoundException, IOException, ClassNotFoundException, MediaBannedException;
 
-    VideoRecord getVideo(String videoId) throws MediaNotFoundException, MediaBannedException;
+    VideoProjection getVideo(String videoId) throws MediaNotFoundException, MediaBannedException;
 
-    VideoLikesNDislikes getVideoLikesNDislikes(String videoId);
-
-    Page<VideoRecord>getLatestVideos(int page, int pageSize);
+    Page<VideoProjection>getLatestVideos(int page, int pageSize);
 
     Path getStreamPath(String videoId);
 
-    long countLikes(String videoId);
+    List<VideoProjection>getMostPopular(int quantity);
 
-    long countDislikes(String videoId);
+    Page<VideoProjection> getBySubscribers(int page,int pageSize) throws BadRequestException, InterruptedException;
 
-    List<VideoRecord>getMostPopular(int quantity);
-
-    Page<VideoRecord> getBySubscribers(int page,int pageSize, String token) throws BadRequestException, InterruptedException;
-
-    List<VideoRecord> getSimilar(String videoId) throws MediaNotFoundException;
-
-
-    String getVideoRating(String accountId,String videoId);
+    List<VideoProjection> getSimilar(String videoId) throws MediaNotFoundException;
 
     int howManyUserVideos(String userId);
 

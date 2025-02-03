@@ -7,7 +7,6 @@ import com.authService.app.Services.Cache.CacheService;
 import com.authService.app.Services.Subscription.Interfaces.SubscriptionRetrievalInterface;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -31,9 +30,8 @@ public class SubscriptionRetrievalService implements SubscriptionRetrievalInterf
     }
 
     @Override
-    @Cacheable(value = "auth_cache",key = "#accountId + '__random_channels_subs'")
-    public List<String> getSubscribedChannelsOrderByRandom(String accountId, int quantity) {
-        List<String> subs = subscriptionRepository.getSubscribedChannelsOrderByRandom(accountId,quantity);
+    public List<String> getSubscribedChannels(String accountId, int quantity) {
+        List<String> subs = subscriptionRepository.getSubscribedChannels(accountId,PageRequest.of(0,quantity)).getContent();
         log.info("SUBS COUNT: "+subs.size());
         return subs;
     }

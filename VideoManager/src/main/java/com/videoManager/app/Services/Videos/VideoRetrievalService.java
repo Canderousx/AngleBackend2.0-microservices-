@@ -4,14 +4,13 @@ package com.videoManager.app.Services.Videos;
 
 import com.videoManager.app.Config.Exceptions.MediaBannedException;
 import com.videoManager.app.Config.Exceptions.MediaNotFoundException;
-import com.videoManager.app.Models.Records.VideoLikesNDislikes;
+import com.videoManager.app.Models.Projections.VideoProjection;
 import com.videoManager.app.Models.Records.VideoRecord;
 import com.videoManager.app.Models.Video;
-import com.videoManager.app.Models.VideoRating;
-import com.videoManager.app.Repositories.VideoRatingRepository;
+import com.videoManager.app.Repositories.Specifications.VideoSpecification;
 import com.videoManager.app.Repositories.VideoRepository;
 import com.videoManager.app.Services.API.AuthServiceAPIService;
-import com.videoManager.app.Services.Cache.CacheService;
+import com.videoManager.app.Services.Cache.RedisService;
 import com.videoManager.app.Services.Videos.Interfaces.VideoRetrievalInterface;
 import lombok.RequiredArgsConstructor;
 import org.springframework.cache.annotation.Cacheable;
@@ -24,8 +23,8 @@ import org.springframework.stereotype.Service;
 
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.time.Duration;
 import java.util.*;
-import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -33,42 +32,41 @@ public class VideoRetrievalService implements VideoRetrievalInterface {
 
     private final VideoRepository videoRepository;
 
-    private final VideoRatingRepository videoRatingRepository;
-
     private final AuthServiceAPIService authService;
 
-    private final CacheService cacheService;
+    private final RedisService redisService;
 
-    private void addRandomVideos(List<VideoRecord>currentList, String currentId){
+    private void addRandomVideos(List<VideoProjection>currentList, String currentId){
         if(currentList.size() < 10){
             List<String>alreadyIds = new ArrayList<>();
-            if(currentList.isEmpty()){
-                alreadyIds.add("");
-            }else{
+            if(!currentList.isEmpty()){
                 currentList.forEach(video -> {
                     alreadyIds.add(video.getId());
                 });
             }
-            currentList.addAll(videoRepository.findRandom(alreadyIds,currentId,PageRequest.of(0,10-currentList.size())));
+            currentList.addAll(
+//                    videoRepository.findRandom(alreadyIds,currentId,PageRequest.of(0,10-currentList.size()),VideoRecord.class));
+                    videoRepository.findBy(VideoSpecification.findRandom(alreadyIds,currentId),
+                            q -> q.as(VideoProjection.class).page(PageRequest.of(0,10-currentList.size()))).toList());
         }
     }
 
 
 
     @Override
-    public Page<VideoRecord> getAllVideos(int page,int pageSize) {
+    public Page<VideoProjection> getAllVideos(int page,int pageSize) {
         Pageable paginateSettings = PageRequest.of(page,pageSize, Sort.by("datePublished").descending());
         return this.videoRepository.findAllByThumbnailIsNotNullAndNameIsNotNullAndIsBannedFalseAndProcessingFalse(paginateSettings);
     }
 
     @Override
-    public Page<VideoRecord> getUserVideos(String userId, int page, int pageSize) {
+    public Page<VideoProjection> getUserVideos(String userId, int page, int pageSize) {
         Pageable pageable = PageRequest.of(page,pageSize);
         return videoRepository.findByAuthorIdAndProcessingFalse(userId,pageable);
     }
 
     @Override
-    public Page<VideoRecord> getCurrentUserVideos(int page, int pageSize) {
+    public Page<VideoProjection> getCurrentUserVideos(int page, int pageSize) {
         Pageable pageable = PageRequest.of(page,pageSize,Sort.by("datePublished").descending());
         String userId = SecurityContextHolder.getContext().getAuthentication().getName();
         return videoRepository.findByAuthorId(userId,pageable);
@@ -84,7 +82,6 @@ public class VideoRetrievalService implements VideoRetrievalInterface {
     @Cacheable(value = "video_cache",key = "#videoId +'__raw_video'",unless = "#result == null")
     public Video getRawVideo(String videoId) throws MediaNotFoundException {
         Video video = this.videoRepository.findById(videoId).orElse(null);
-
         if(video!=null){
             return video;
         }
@@ -92,40 +89,26 @@ public class VideoRetrievalService implements VideoRetrievalInterface {
     }
 
     @Override
-    public VideoRecord getVideo(String videoId) throws MediaNotFoundException, MediaBannedException {
-        Video video = getRawVideo(videoId);
-        if(video.isBanned()){
+    public VideoProjection getVideo(String videoId) throws MediaNotFoundException, MediaBannedException {
+        if(videoRepository.isBanned(videoId)){
             throw new MediaBannedException("Video is banned.");
         }
-        return new VideoRecord(
-                video.getId(),
-                video.getAuthorId(),
-                video.getName(),
-                video.getDescription(),
-                video.getThumbnail(),
-                video.getPlaylistName(),
-                video.getDatePublished(),
-                videoRepository.getViews(videoId),
-                video.isProcessing()
-        );
+        return videoRepository.findDTOById(videoId).orElse(null);
     }
 
     @Override
-    public VideoLikesNDislikes getVideoLikesNDislikes(String videoId) {
-        long likes = this.countLikes(videoId);
-        long dislikes = this.countDislikes(videoId);
-        return new VideoLikesNDislikes(likes,dislikes);
-    }
-
-    @Override
-    public Page<VideoRecord> getLatestVideos(int page, int pageSize) {
+    public Page<VideoProjection> getLatestVideos(int page, int pageSize) {
         Pageable pageable = PageRequest.of(page,pageSize,Sort.by("datePublished").descending());
         return videoRepository.findAllByThumbnailIsNotNullAndNameIsNotNullAndIsBannedFalseAndProcessingFalse(pageable);
     }
 
     @Override
     public Path getStreamPath(String videoId) {
-        String url = cacheService.getWithCache(videoId+"__stream_url",videoRepository::getStreamPath);
+        String url = redisService.get(redisService.getStreamUrlCacheKey(videoId),String.class);
+        if(url == null){
+            url = videoRepository.getStreamPath(videoId);
+            redisService.add(redisService.getStreamUrlCacheKey(videoId), Duration.ofDays(30));
+        }
         Path videoPath = Path.of(url);
         if (!Files.exists(videoPath)) {
             throw new RuntimeException("File .m3u8 for ID: " + videoId+" not found!! Path: "+videoPath);
@@ -133,50 +116,38 @@ public class VideoRetrievalService implements VideoRetrievalInterface {
         return videoPath;
     }
 
+
     @Override
-    public long countLikes(String videoId) {
-        return videoRatingRepository.countLikes(videoId);
+    public List<VideoProjection> getMostPopular(int quantity) {
+        Pageable pageable = PageRequest.of(0,quantity);
+        return videoRepository.findBy(VideoSpecification.findAllActive(),
+                q -> q.as(VideoProjection.class).page(pageable)).getContent();
     }
 
     @Override
-    public long countDislikes(String videoId) {
-        return videoRatingRepository.countDislikes(videoId);
-    }
-
-    @Override
-    public String getVideoRating(String accountId, String videoId) {
-        VideoRating videoRating = videoRatingRepository.findByAccountIdAndVideoId(accountId,videoId).orElse(null);
-        if(videoRating == null){
-            return "none";
-        }
-        return videoRating.getRating();
-    }
-
-    @Override
-    @Cacheable(value = "video_cache",key = "'most_popular'",unless = "#result == null || #result.size() < #quantity")
-    public List<VideoRecord> getMostPopular(int quantity) {
-        return videoRepository.findMostPopular(PageRequest.of(0,quantity));
-    }
-
-    @Override
-    public Page<VideoRecord> getBySubscribers(int page,int pageSize, String token) {
-        List<String>subscribersIds = authService.getRandomSubscribedIds(token,10);
+    public Page<VideoProjection> getBySubscribers(int page,int pageSize) {
+        String accountId = SecurityContextHolder.getContext().getAuthentication().getName();
+        List<String>subscribersIds = authService.getRandomSubscribedIds(accountId,10);
+        System.out.println("SUBSRIBERS IDS: "+subscribersIds.size());
         Pageable pageable = PageRequest.of(page,pageSize);
-        return videoRepository.findFromSubscribers(subscribersIds,pageable);
+        return videoRepository.findBy(VideoSpecification.findBySubscribers(subscribersIds),
+                q -> q.as(VideoProjection.class).page(pageable));
     }
 
     @Override
-    @Cacheable(value = "video_cache",key = "#videoId +'__similar_videos'",unless = "#result == null || #result.size() < 10")
-    public List<VideoRecord> getSimilar(String videoId) throws MediaNotFoundException {
-        List<VideoRecord>videos = new ArrayList<>();
+    public List<VideoProjection> getSimilar(String videoId) throws MediaNotFoundException {
+        List<VideoProjection>videos;
         Video video = getRawVideo(videoId);
         if(video.getTags().isEmpty()){
+            videos = new ArrayList<>();
             addRandomVideos(videos,videoId);
             return videos;
         }
         Set<String> tagNames = new HashSet<>();
         video.getTags().forEach(tag -> tagNames.add(tag.getName()));
-        videos = videoRepository.findSimilar(tagNames,videoId);
+        Page<VideoProjection> page = videoRepository.findBy(VideoSpecification.findSimilar(tagNames,videoId),
+                q -> q.as(VideoProjection.class).page(PageRequest.of(0,10)));
+        videos = new ArrayList<>(page.getContent());
         addRandomVideos(videos,videoId);
         return videos;
     }

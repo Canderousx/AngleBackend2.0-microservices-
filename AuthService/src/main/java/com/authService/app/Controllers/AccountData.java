@@ -2,19 +2,16 @@ package com.authService.app.Controllers;
 
 
 import com.authService.app.Config.Exceptions.AccountNotFoundException;
-import com.authService.app.Models.Account;
+import com.authService.app.Config.Services.JwtService;
 import com.authService.app.Models.Records.AccountRecord;
 import com.authService.app.Models.Records.ServerMessage;
 import com.authService.app.Services.Account.AccountManagementService;
 import com.authService.app.Services.Account.AccountRetrievalService;
-import com.authService.app.Services.Account.AvatarService;
 import com.authService.app.Services.Subscription.SubscriptionRetrievalService;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import org.apache.coyote.BadRequestException;
-import org.apache.kafka.common.protocol.types.Field;
 import org.springframework.core.io.Resource;
-import org.springframework.data.domain.Page;
 import org.springframework.http.CacheControl;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
@@ -25,8 +22,8 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
 import java.nio.file.Files;
+import java.util.ArrayList;
 import java.util.List;
-import java.util.concurrent.TimeUnit;
 
 @RequiredArgsConstructor
 @RestController
@@ -38,6 +35,8 @@ public class AccountData {
     private final AccountManagementService accountManagementService;
 
     private final SubscriptionRetrievalService subscriptionRetrievalService;
+
+    private final JwtService jwtService;
 
     @RequestMapping(value = "getCurrentUser",method = RequestMethod.GET)
     public AccountRecord getCurrentUser() throws BadRequestException {
@@ -92,9 +91,9 @@ public class AccountData {
     }
 
     @RequestMapping(value = "getSubscribedChannelsRandom",method = RequestMethod.GET)
-    public List<String> getSubscribedIds(@RequestParam int quantity){
-        String accountId = SecurityContextHolder.getContext().getAuthentication().getName();
-        return subscriptionRetrievalService.getSubscribedChannelsOrderByRandom(accountId,quantity);
+    public List<String> getSubscribedIds(@RequestParam int quantity,HttpServletRequest request){
+        String accountId = request.getHeader("X-Ac-Id");
+        return subscriptionRetrievalService.getSubscribedChannels(accountId,quantity);
     }
 
     @RequestMapping(value = "amAdmin",method = RequestMethod.GET)

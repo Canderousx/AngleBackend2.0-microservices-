@@ -45,11 +45,11 @@ public class JwtAuthFilter extends OncePerRequestFilter {
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException{
         String path = request.getRequestURI();
-        if(isPathPermitAll(path)){
+        String authHeader = request.getHeader("Authentication");
+        if(isPathPermitAll(path) && authHeader == null){
             filterChain.doFilter(request,response);
             return;
         }
-        String authHeader = request.getHeader("Authentication");
         String userId = null;
         String token = null;
         try{

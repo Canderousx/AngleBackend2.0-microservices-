@@ -38,11 +38,11 @@ public class JwtAuthFilter extends OncePerRequestFilter {
             throws ServletException, IOException {
 
         String path = request.getRequestURI();
-        if(isPathPermitAll(path)){
+        String authHeader = request.getHeader("Authentication");
+        if(isPathPermitAll(path) && authHeader == null){
             filterChain.doFilter(request,response);
             return;
         }
-        String authHeader = request.getHeader("Authentication");
         if (authHeader != null && authHeader.startsWith("Bearer ")) {
             String token = authHeader.substring(7);
             try {

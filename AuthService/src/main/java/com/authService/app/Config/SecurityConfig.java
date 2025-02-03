@@ -53,7 +53,8 @@ public class SecurityConfig implements WebMvcConfigurer {
                 "/accounts/getUsername",
                 "/accounts/emailExists",
                 "/accounts/usernameExists",
-                "/accounts/countSubscribers"
+                "/accounts/countSubscribers",
+                "/accounts/getSubscribedChannelsRandom"
         };
     }
 

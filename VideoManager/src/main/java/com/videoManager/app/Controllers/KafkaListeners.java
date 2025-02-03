@@ -1,12 +1,12 @@
 package com.videoManager.app.Controllers;
 
 
+import com.fasterxml.jackson.core.type.TypeReference;
 import com.videoManager.app.Config.Exceptions.MediaNotFoundException;
 import com.videoManager.app.Models.Records.BanData;
 import com.videoManager.app.Models.Records.CommentNotificationData;
 import com.videoManager.app.Models.ThumbnailsData;
 import com.videoManager.app.Models.Records.VideoProcessingData;
-import com.videoManager.app.Repositories.ThumbnailsDataRepository;
 import com.videoManager.app.Repositories.VideoRepository;
 import com.videoManager.app.Services.JsonUtils;
 import com.videoManager.app.Services.Notifications.Interfaces.NotificationGenerator;
@@ -15,6 +15,8 @@ import com.videoManager.app.Services.Videos.VideoUploadService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.kafka.annotation.KafkaListener;
 import org.springframework.stereotype.Component;
+
+import java.util.Map;
 
 @Component
 @RequiredArgsConstructor
@@ -45,6 +47,12 @@ public class KafkaListeners {
     public void newCommentAdded(String json){
         CommentNotificationData data = JsonUtils.readJson(json, CommentNotificationData.class);
         notificationGenerator.newCommentNotification(data);
+    }
+
+    @KafkaListener(topics = "views_update", groupId = "video_group")
+    public void updateViews(String json){
+        Map<String,Long> data = JsonUtils.readJson(json, new TypeReference<Map<String, Long>>() {});
+        videoModerationService.updateViews(data);
     }
 
     @KafkaListener(topics = "video_banned", groupId = "video_group")

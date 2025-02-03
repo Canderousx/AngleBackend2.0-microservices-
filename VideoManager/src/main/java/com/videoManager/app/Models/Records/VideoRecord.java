@@ -10,11 +10,9 @@ public record VideoRecord(
         String name,
         String description,
         String thumbnail,
-
         String playlistName,
-
         Date datePublished,
-        long views,
+        Long views,
         boolean processing
 ) implements VideoProjection {
     @Override
@@ -53,7 +51,7 @@ public record VideoRecord(
     }
 
     @Override
-    public long getViews() {
+    public Long getViews() {
         return views;
     }
 

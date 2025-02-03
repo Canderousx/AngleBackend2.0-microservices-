@@ -1,6 +1,7 @@
 package com.videoManager.app.Services;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 public class JsonUtils {
@@ -17,6 +18,14 @@ public class JsonUtils {
     public static <T> T readJson(String json, Class<T> clazz){
         try {
             return objectMapper.readValue(json,clazz);
+        } catch (JsonProcessingException e) {
+            throw new RuntimeException("Error during JSON to object conversion",e);
+        }
+    }
+
+    public static <T> T readJson(String json, TypeReference<T> reference){
+        try {
+            return objectMapper.readValue(json,reference);
         } catch (JsonProcessingException e) {
             throw new RuntimeException("Error during JSON to object conversion",e);
         }

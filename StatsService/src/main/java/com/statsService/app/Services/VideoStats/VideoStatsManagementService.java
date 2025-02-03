@@ -5,6 +5,8 @@ import com.statsService.app.Repositories.VideoRatingRepository;
 import com.statsService.app.Repositories.VideoViewRepository;
 import com.statsService.app.Services.API.ApiNinjaService;
 import com.statsService.app.Services.Cache.RedisService;
+import com.statsService.app.Services.JsonUtils;
+import com.statsService.app.Services.Kafka.KafkaSenderService;
 import com.statsService.app.Services.VideoStats.Interfaces.VideoStatsManagementInterface;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -12,9 +14,7 @@ import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 @Service
 @RequiredArgsConstructor
@@ -25,9 +25,16 @@ public class VideoStatsManagementService implements VideoStatsManagementInterfac
 
     private final VideoRatingRepository videoRatingRepository;
 
+    private final KafkaSenderService kafkaSenderService;
+
     private final ApiNinjaService apiNinjaService;
 
     private final RedisService redisService;
+
+    private void viewsUpdateEvent(Map<String,Long>updateData){
+        String data = JsonUtils.toJson(updateData);
+        kafkaSenderService.send("views_update",data);
+    };
 
 
     @Scheduled(cron = "0 0/5 * * * ?") // 5 minutes
@@ -40,15 +47,19 @@ public class VideoStatsManagementService implements VideoStatsManagementInterfac
         }
         log.info("Events found. Cleaning redis memory and saving views into database.");
         List<VideoView>allViews = new ArrayList<>();
+        Map<String,Long>updateData = new HashMap<>();
         endedSessionsKeys.stream()
                 .map(keyObj -> (String)keyObj)
                 .forEach(key -> {
                     try{
                         WatchTime watchTime = redisService.get(key, WatchTime.class);
                         if(watchTime != null){
+                            String videoId = watchTime.getVideoId();
                             allViews.add(watchTime.toVideoView());
                             redisService.delete(key);
                             redisService.removeMemberFromSet("ended_watch_sessions",key);
+                            updateData.merge(videoId,1L,Long::sum);
+
                         }else{
                             log.error("Couldn't processed ending session with key: "+key);
                             log.error("WatchTime object is null!");
@@ -63,6 +74,9 @@ public class VideoStatsManagementService implements VideoStatsManagementInterfac
             try{
                 videoViewRepository.saveAll(allViews);
                 log.info("Saved {} views to the database",allViews.size());
+                if(!updateData.isEmpty()){
+                    viewsUpdateEvent(updateData);
+                }
             }catch (Exception e){
                 log.error("Couldn't save views to the database!");
                 log.error(e.getLocalizedMessage());

@@ -48,9 +48,9 @@ public class CacheConfig {
     }
 
     @Bean
-    public RedisTemplate<String, Object> redisTemplate(RedisConnectionFactory redisConnectionFactory) {
+    public RedisTemplate<String, Object> redisTemplate(RedisConnectionFactory videoManagerRedisConnectionFactory) {
         RedisTemplate<String, Object> template = new RedisTemplate<>();
-        template.setConnectionFactory(redisConnectionFactory);
+        template.setConnectionFactory(videoManagerRedisConnectionFactory);
 
         ObjectMapper objectMapper = new ObjectMapper();
         objectMapper.activateDefaultTyping(

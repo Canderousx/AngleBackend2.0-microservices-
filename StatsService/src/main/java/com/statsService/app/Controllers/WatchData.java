@@ -16,6 +16,11 @@ public class WatchData {
 
     private final VideoStatsRetrievalService videoStatsRetrievalService;
 
+    @RequestMapping(value = "/getViews",method = RequestMethod.GET)
+    public Long getViews(@RequestParam String videoId){
+        return videoStatsRetrievalService.countViews(videoId);
+    }
+
     @RequestMapping(value = "/videoStats",method = RequestMethod.GET)
     public VideoStats getVideoStats(@RequestParam String id){
         return videoStatsRetrievalService.getVideoStats(id);

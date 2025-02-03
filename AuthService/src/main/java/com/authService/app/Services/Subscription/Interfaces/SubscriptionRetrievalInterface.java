@@ -9,7 +9,7 @@ public interface SubscriptionRetrievalInterface {
 
     Subscription getSubscription(String accountId, String channelId);
 
-    List<String> getSubscribedChannelsOrderByRandom(String accountId,int quantity);
+    List<String> getSubscribedChannels(String accountId, int quantity);
 
     Page<String> getSubscribedChannels(String accountId,int page, int pageSize);
 

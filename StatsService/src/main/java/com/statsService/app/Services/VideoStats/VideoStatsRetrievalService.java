@@ -120,8 +120,7 @@ public class VideoStatsRetrievalService implements VideoStatsRetrievalInterface 
         return new VideoStats(
                 videoId,
                 countLikes(videoId),
-                countDislikes(videoId),
-                countViews(videoId)
+                countDislikes(videoId)
         );
     }
 }

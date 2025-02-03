@@ -1,6 +1,7 @@
 package com.videoManager.app.Repositories;
 
 import com.videoManager.app.Models.Tag;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -21,7 +22,7 @@ public interface TagRepository extends JpaRepository<Tag,Long> {
     List<Tag> findTagsByVideoId(@Param("videoId")String videoId);
 
     @Query(value = "SELECT DISTINCT LOWER(t.name) FROM tag t WHERE LOWER(t.name) LIKE CONCAT(:tagName, '%') ORDER BY LOWER(t.name) ASC", nativeQuery = true)
-    List<String>findNameContaining(@Param("tagName")String tagName);
+    List<String>findNameContaining(@Param("tagName")String tagName, Pageable pageable);
 
 
 }
