@@ -5,6 +5,7 @@ import com.videoManager.app.Config.Exceptions.MediaNotFoundException;
 import com.videoManager.app.Models.Projections.VideoProjection;
 import com.videoManager.app.Models.Records.VideoRecord;
 import com.videoManager.app.Models.Video;
+import com.videoManager.app.Services.Cache.PageWrapper;
 import org.apache.coyote.BadRequestException;
 import org.springframework.data.domain.Page;
 
@@ -14,11 +15,9 @@ import java.util.List;
 
 public interface VideoRetrievalInterface {
 
-    Page<VideoProjection> getAllVideos(int page, int pageSize);
+    PageWrapper<VideoProjection> getUserVideos(String userId, int page, int pageSize);
 
-    Page<VideoProjection> getUserVideos(String userId, int page, int pageSize);
-
-    Page<VideoProjection> getCurrentUserVideos(int page, int pageSize);
+    PageWrapper<VideoProjection> getCurrentUserVideos(int page, int pageSize);
 
     String getAuthorId(String videoId);
 
@@ -26,13 +25,13 @@ public interface VideoRetrievalInterface {
 
     VideoProjection getVideo(String videoId) throws MediaNotFoundException, MediaBannedException;
 
-    Page<VideoProjection>getLatestVideos(int page, int pageSize);
+    PageWrapper<VideoProjection>getLatestVideos(int page, int pageSize);
 
     Path getStreamPath(String videoId);
 
     List<VideoProjection>getMostPopular(int quantity);
 
-    Page<VideoProjection> getBySubscribers(int page,int pageSize) throws BadRequestException, InterruptedException;
+    PageWrapper<VideoProjection> getBySubscribers(int page,int pageSize) throws BadRequestException, InterruptedException;
 
     List<VideoProjection> getSimilar(String videoId) throws MediaNotFoundException;
 

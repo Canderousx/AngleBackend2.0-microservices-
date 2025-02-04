@@ -12,14 +12,14 @@ public class JsonUtils {
         try {
             return objectMapper.writeValueAsString(object);
         } catch (JsonProcessingException e) {
-            throw new RuntimeException("Error during to JSON conversion:", e);
+            throw new RuntimeException("Error during to JSON conversion: "+e.getMessage());
         }
     }
     public static <T> T readJson(String json, Class<T> clazz){
         try {
             return objectMapper.readValue(json,clazz);
         } catch (JsonProcessingException e) {
-            throw new RuntimeException("Error during JSON to object conversion",e);
+            throw new RuntimeException("Error during JSON to object conversion "+e.getMessage());
         }
     }
 
@@ -27,7 +27,7 @@ public class JsonUtils {
         try {
             return objectMapper.readValue(json,reference);
         } catch (JsonProcessingException e) {
-            throw new RuntimeException("Error during JSON to object conversion",e);
+            throw new RuntimeException("Error during JSON to object conversion "+e.getMessage());
         }
     }
 }

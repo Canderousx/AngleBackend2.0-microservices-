@@ -4,18 +4,12 @@ import com.commentsManager.app.Config.Exceptions.MediaNotFoundException;
 import com.commentsManager.app.Models.Comment;
 import com.commentsManager.app.Models.Records.CommentNotificationData;
 import com.commentsManager.app.Repositories.CommentRepository;
-import com.commentsManager.app.Services.Cache.CacheService;
 import com.commentsManager.app.Services.Comments.Interfaces.CommentManagement;
 import com.commentsManager.app.Services.JsonUtils;
 import com.commentsManager.app.Services.Kafka.KafkaSenderService;
-import com.commentsManager.app.Services.Notifications.NotificationGeneratorService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.coyote.BadRequestException;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.cache.CacheManager;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 

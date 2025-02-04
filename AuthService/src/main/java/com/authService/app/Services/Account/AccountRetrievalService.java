@@ -8,7 +8,6 @@ import com.authService.app.Models.UserRole;
 import com.authService.app.Repositories.AccountRepository;
 import com.authService.app.Repositories.SubscriptionRepository;
 import com.authService.app.Services.Account.Interfaces.AccountRetrieval;
-import com.authService.app.Services.Cache.CacheService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.coyote.BadRequestException;
@@ -29,8 +28,6 @@ public class AccountRetrievalService implements AccountRetrieval {
     private final AccountRepository accountRepository;
 
     private final SubscriptionRepository subscriptionRepository;
-
-    private final CacheService cacheService;
 
     private final EnvironmentVariables environmentVariables;
 

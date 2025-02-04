@@ -4,12 +4,10 @@ package com.authService.app.Services.Subscription;
 import com.authService.app.Models.Subscription;
 import com.authService.app.Repositories.SubscriptionRepository;
 import com.authService.app.Services.Account.AccountRetrievalService;
-import com.authService.app.Services.Cache.CacheService;
 import com.authService.app.Services.Notifications.NotificationGeneratorService;
 import com.authService.app.Services.Subscription.Interfaces.SubscriptionManagementInterface;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
-import org.springframework.cache.CacheManager;
 import org.springframework.stereotype.Service;
 
 @Service

@@ -5,6 +5,7 @@ import com.videoManager.app.Config.Exceptions.MediaBannedException;
 import com.videoManager.app.Config.Exceptions.MediaNotFoundException;
 import com.videoManager.app.Models.Projections.VideoProjection;
 import com.videoManager.app.Models.Records.VideoRecord;
+import com.videoManager.app.Services.Cache.PageWrapper;
 import com.videoManager.app.Services.Videos.VideoRetrievalService;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.data.domain.Page;
@@ -30,17 +31,17 @@ public class VideosData {
         return videoRetrievalService.getVideo(id);
     }
     @RequestMapping(value = "/getUserVideos",method = RequestMethod.GET)
-    public Page<VideoProjection>getUserVideos(@RequestParam String id, @RequestParam int page, @RequestParam int pageSize){
+    public PageWrapper<VideoProjection> getUserVideos(@RequestParam String id, @RequestParam int page, @RequestParam int pageSize){
         return videoRetrievalService.getUserVideos(id,page,pageSize);
     }
 
     @RequestMapping(value = "/getCurrentUserVideos",method = RequestMethod.GET)
-    public Page<VideoProjection>getCurrentUserVideos(@RequestParam int page, @RequestParam int pageSize){
+    public PageWrapper<VideoProjection>getCurrentUserVideos(@RequestParam int page, @RequestParam int pageSize){
         return videoRetrievalService.getCurrentUserVideos(page,pageSize);
     }
 
     @RequestMapping(value = "/getLatestVideos",method = RequestMethod.GET)
-    public Page<VideoProjection>getLatestVideos(@RequestParam int page, @RequestParam int pageSize){
+    public PageWrapper<VideoProjection>getLatestVideos(@RequestParam int page, @RequestParam int pageSize){
         return videoRetrievalService.getLatestVideos(page,pageSize);
     }
     @RequestMapping(value = "/getMostPopular",method = RequestMethod.GET)
@@ -49,9 +50,9 @@ public class VideosData {
     }
 
     @RequestMapping(value = "/getBySubscribed",method = RequestMethod.GET)
-    public Page<VideoProjection> getBySubscribed(@RequestParam int page, @RequestParam int pageSize, HttpServletRequest request){
+    public PageWrapper<VideoProjection> getBySubscribed(@RequestParam int page, @RequestParam int pageSize, HttpServletRequest request){
         String token = request.getHeader("Authentication").substring(7);
-        Page<VideoProjection> list = videoRetrievalService.getBySubscribers(page,pageSize);
+        PageWrapper<VideoProjection> list = videoRetrievalService.getBySubscribers(page,pageSize);
         System.out.println("SUBS VIDEOS: "+list.getContent().size());
         return list;
     }

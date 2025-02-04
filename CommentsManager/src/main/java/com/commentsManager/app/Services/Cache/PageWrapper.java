@@ -17,23 +17,21 @@ public class PageWrapper<T> implements Serializable {
     private int pageSize;
     private long totalElements;
 
-
-    public PageWrapper(List<T> content, int pageNumber, int pageSize, long totalElements) {
-        this.content = content;
-        this.pageNumber = pageNumber;
-        this.pageSize = pageSize;
-        this.totalElements = totalElements;
-    }
-
-    public static <T> PageWrapper<T> empty() {
-        return new PageWrapper<>(List.of(), 0, 0, 0L);
-    }
-
     public Page<T> toPage() {
         return new org.springframework.data.domain.PageImpl<>(content,
                 org.springframework.data.domain.PageRequest.of(pageNumber, pageSize),
                 totalElements);
     }
+
+
+
+    public PageWrapper(Page<T> page){
+        this.content = page.getContent();
+        this.pageNumber =page.getNumber();
+        this.pageSize = page.getSize();
+        this.totalElements = page.getTotalElements();
+    }
+
 
 
 }

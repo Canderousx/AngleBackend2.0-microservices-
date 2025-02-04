@@ -1,7 +1,11 @@
 package com.videoManager.app.Models.Projections;
 
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
+import com.videoManager.app.Models.Records.VideoRecord;
+
 import java.util.Date;
 
+@JsonDeserialize(as = VideoRecord.class)
 public interface VideoProjection {
     String getId();
     String getAuthorId();
@@ -13,4 +17,5 @@ public interface VideoProjection {
     String getPlaylistName();
     Date getDatePublished();
     boolean getProcessing();
+    boolean getIsBanned();
 }

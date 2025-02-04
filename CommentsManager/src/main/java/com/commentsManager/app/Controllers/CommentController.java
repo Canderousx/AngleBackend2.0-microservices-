@@ -2,6 +2,7 @@ package com.commentsManager.app.Controllers;
 import com.commentsManager.app.Config.Exceptions.MediaNotFoundException;
 import com.commentsManager.app.Models.Comment;
 import com.commentsManager.app.Models.Records.ServerMessage;
+import com.commentsManager.app.Services.Cache.PageWrapper;
 import com.commentsManager.app.Services.Comments.CommentManagementService;
 import com.commentsManager.app.Services.Comments.CommentRetrievalService;
 import lombok.RequiredArgsConstructor;
@@ -25,7 +26,7 @@ public class CommentController {
     }
 
     @RequestMapping(value = "/getVideoComments",method = RequestMethod.GET)
-    public Page<Comment>getVideoComments(@RequestParam String id, @RequestParam int page, @RequestParam int pageSize){
+    public PageWrapper<Comment> getVideoComments(@RequestParam String id, @RequestParam int page, @RequestParam int pageSize){
         return commentRetrievalService.getVideoComments(id,page,pageSize);
     }
 

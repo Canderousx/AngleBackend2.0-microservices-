@@ -13,6 +13,8 @@ public record VideoRecord(
         String playlistName,
         Date datePublished,
         Long views,
+
+        boolean isBanned,
         boolean processing
 ) implements VideoProjection {
     @Override
@@ -58,5 +60,10 @@ public record VideoRecord(
     @Override
     public boolean getProcessing() {
         return processing;
+    }
+
+    @Override
+    public boolean getIsBanned() {
+        return isBanned;
     }
 }

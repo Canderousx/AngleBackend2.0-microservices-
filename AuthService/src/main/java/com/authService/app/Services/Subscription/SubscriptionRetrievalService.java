@@ -3,7 +3,6 @@ package com.authService.app.Services.Subscription;
 
 import com.authService.app.Models.Subscription;
 import com.authService.app.Repositories.SubscriptionRepository;
-import com.authService.app.Services.Cache.CacheService;
 import com.authService.app.Services.Subscription.Interfaces.SubscriptionRetrievalInterface;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;

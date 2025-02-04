@@ -14,11 +14,7 @@ public interface CommentRetrieval {
 
     PageWrapper<Comment> getUserComments(String userId, int page, int pageSize);
 
-    Page<Comment> getVideoComments(String videoId, int page, int pageSize) throws IOException, ClassNotFoundException, MediaNotFoundException;
-
-    int getTotalCommentsNum(String videoId);
-
-
+    PageWrapper<Comment> getVideoComments(String videoId, int page, int pageSize) throws IOException, ClassNotFoundException, MediaNotFoundException;
 
 
 }

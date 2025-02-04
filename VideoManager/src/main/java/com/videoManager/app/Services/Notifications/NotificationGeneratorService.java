@@ -88,6 +88,18 @@ public class NotificationGeneratorService implements NotificationGenerator {
     }
 
     @Override
+    public void videoChangesSaved(String ownerId, String videoTitle, String videoId, String thumbnail) {
+        sendNotification(new NotificationRecord(
+                ownerId,
+                "Your changes has been saved. It takes some time for them to get live",
+                "",
+                thumbnail,
+                "/watch?v="+videoId,
+                true
+        ));
+    }
+
+    @Override
     public void videoLacksMetadata(String ownerId, String videoId) {
         sendNotification(new NotificationRecord(
                 ownerId,

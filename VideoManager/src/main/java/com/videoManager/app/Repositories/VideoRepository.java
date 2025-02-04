@@ -1,7 +1,6 @@
 package com.videoManager.app.Repositories;
 
 import com.videoManager.app.Models.Projections.VideoProjection;
-import com.videoManager.app.Models.Records.VideoRecord;
 import com.videoManager.app.Models.Video;
 import jakarta.transaction.Transactional;
 import org.springframework.data.domain.Page;
@@ -27,7 +26,7 @@ public interface VideoRepository extends JpaRepository<Video, String>, JpaSpecif
 
     Page<VideoProjection> findAllByThumbnailIsNotNullAndNameIsNotNullAndIsBannedFalseAndProcessingFalse(Pageable page);
 
-    Page<VideoProjection> findByAuthorIdAndProcessingFalse(String authorId, Pageable pageable);
+    Page<VideoProjection> findByAuthorIdAndProcessingFalseAndNameIsNotNullAndIsBannedFalseAndThumbnailIsNotNull(String authorId, Pageable pageable);
 
     Page<VideoProjection> findByAuthorId(String authorId,Pageable pageable);
 

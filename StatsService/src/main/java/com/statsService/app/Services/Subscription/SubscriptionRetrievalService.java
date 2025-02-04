@@ -1,7 +1,6 @@
 package com.statsService.app.Services.Subscription;
 import com.statsService.app.Models.Subscription;
 import com.statsService.app.Repositories.SubscriptionRepository;
-import com.statsService.app.Services.Cache.CacheService;
 import com.statsService.app.Services.Subscription.Interfaces.SubscriptionRetrievalInterface;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -19,8 +18,6 @@ import java.util.List;
 public class SubscriptionRetrievalService implements SubscriptionRetrievalInterface {
 
     private final SubscriptionRepository subscriptionRepository;
-
-    private final CacheService cacheService;
 
 
     @Override
@@ -50,7 +47,7 @@ public class SubscriptionRetrievalService implements SubscriptionRetrievalInterf
 
     @Override
     public boolean isSubscriber(String accountId, String channelId) {
-        return cacheService.getWithCache(accountId+"__"+channelId+"__is_subscriber",subscriptionRepository::existsByAccountIdAndChannelId);
+        return subscriptionRepository.existsByAccountIdAndChannelId(accountId,channelId);
     }
 
     @Override

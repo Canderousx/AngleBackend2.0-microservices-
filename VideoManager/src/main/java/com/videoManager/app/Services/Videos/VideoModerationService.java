@@ -6,6 +6,7 @@ import com.videoManager.app.Config.Exceptions.UnauthorizedException;
 import com.videoManager.app.Models.Records.VideoDetails;
 import com.videoManager.app.Models.Video;
 import com.videoManager.app.Repositories.VideoRepository;
+import com.videoManager.app.Services.Cache.VideoCache;
 import com.videoManager.app.Services.Files.FileDeleterService;
 import com.videoManager.app.Services.Kafka.KafkaSenderService;
 import com.videoManager.app.Services.Notifications.NotificationGeneratorService;
@@ -37,6 +38,8 @@ public class VideoModerationService implements VideoModerationInterface {
 
     private final KafkaSenderService kafkaSenderService;
 
+    private final VideoCache videoCache;
+
     private boolean doesVideoExist(String videoId){
         return videoRepository.existsById(videoId);
     }
@@ -53,12 +56,21 @@ public class VideoModerationService implements VideoModerationInterface {
             throw new UnauthorizedException("Unauthorized: You're not an owner of the video!");
         }
         Video video = videoRetrievalService.getRawVideo(id);
+        boolean editMode = video.getName() != null && video.getDescription() != null;
         video.setName(metadata.name());
         video.setDescription(metadata.description());
         video.setTags(tagSaverService.setTags(metadata));
         video.setThumbnail(metadata.thumbnail());
         videoRepository.save(video);
-        if(!video.isProcessing()){
+        videoCache.removeFromCache(videoCache.getVideoKey(id));
+        if(editMode){
+            notificationGenerator.videoChangesSaved(
+                    video.getAuthorId(),
+                    video.getName(),
+                    video.getId(),
+                    video.getThumbnail()
+            );
+        }else if(!video.isProcessing()){
             notificationGenerator.videoProcessingFinished(
                     video.getAuthorId(),
                     video.getName(),
