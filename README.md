@@ -17,7 +17,7 @@ This project is the newest iteration of Angle Backend (see: https://github.com/C
 
 # 1. Architecture
 
-This backend is built using a microservices architecture with Spring Boot and Spring Cloud Gateway (*Security-Gateway* service).
+This backend is built using a microservices architecture with Spring Boot and Spring Cloud Gateway ([Security-Gateway](#security-gateway) service).
 Each microservice has its own MySQL and Redis database. Microservices communicate asynchronously using Apache Kafka for event-driven messaging and RESTful APIs for synchronous interactions.
 
 Below is a detailed description of each microservice in this project:
@@ -45,7 +45,7 @@ Developed with Spring Boot, this service handles user authentication, registrati
 Each JWT contains user-specific data: the user ID is stored as the subject, and the IP address is included in the token's claims.
 This allows other microservices — without direct access to the accounts database — to recognize and verify users based on the provided JWT.
 
-Additionally, Auth-Service is responsible for generating account-related notifications, which are then sent through Kafka to the **Notification-Service**.
+Additionally, Auth-Service is responsible for generating account-related notifications, which are then sent through Kafka to the [Notification-Service](#notification-service)
 
 
 ## *Notification-Service*
@@ -61,9 +61,9 @@ Developed with Spring Boot, this service is responsible for storing metadata of 
 It also acts as the source of the *video_uploaded* event.
 
 When a user uploads a new video, this service handles the storage of the raw *.mp4* file and then publishes its metadata via **Apache Kafka**.
-This event-driven approach enables the **Video-Processor** and **Thumbnail-Generator** services to initiate their respective tasks.
+This event-driven approach enables the [Video-Processor](#video-processor) and [Thumbnail-Generaotr](#thumbnail-generator) services to initiate their respective tasks.
 
-Additionally, Video-Manager generates video-related notifications, such as when video processing is completed, which are then sent via Kafka to the **Notification-Service**.
+Additionally, Video-Manager generates video-related notifications, such as when video processing is completed, which are then sent via Kafka to the [Notification-Service](#notification-service)
 
 
 It also listens to video-related topics on **Kafka**, enabling it to process and handle videos dynamically based on the received events.
@@ -76,7 +76,7 @@ Developed with Spring Boot, this service is responsible for converting raw .mp4 
 This conversion enables adaptive streaming, allowing users to switch video quality dynamically and download content in segments.
 
 The service listens to the *video_uploaded* topic on Kafka, processing each event by converting the corresponding .mp4 file.
-Once the conversion is complete, all metadata related to the generated playlist is sent back through Kafka to the **Video-Manager**.
+Once the conversion is complete, all metadata related to the generated playlist is sent back through Kafka to the [Video-Manager](#video-manager)
 
 
 ## *Thumbnail-Generator*
@@ -85,7 +85,7 @@ Developed with Spring Boot, this service extracts frames from *.mp4* files using
 These frames serve as potential thumbnails for the uploaded video, allowing users to select their preferred option.
 
 The service listens to the *video_uploaded* topic on **Kafka**, processing each event by extracting frames from the corresponding *.mp4* file.
-Once the process is complete, all metadata related to the generated thumbnails is sent back via Kafka to the Video-Manager.
+Once the process is complete, all metadata related to the generated thumbnails is sent back via Kafka to the [Video-Manager](#video-manager).
 
 
 ## *Comments-Manager*
@@ -116,7 +116,7 @@ It monitors video views, their duration, and user interactions, such as pauses, 
 For fast processing, tracking data is initially stored in **Redis**.
 Every 5 minutes, a scheduled task persists completed view sessions to the database.
 
-After updating the views, the service sends a **Kafka** event, which is consumed by *Video-Manager* to update the video's total view count.
+After updating the views, the service sends a **Kafka** event, which is consumed by [Video-Manager](#video-manager) to update the video's total view count.
 
 
 
