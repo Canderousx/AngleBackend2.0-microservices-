@@ -27,8 +27,6 @@ public interface VideoRetrievalInterface {
 
     PageWrapper<VideoProjection>getLatestVideos(int page, int pageSize);
 
-    Path getStreamPath(String videoId);
-
     List<VideoProjection>getMostPopular(int quantity);
 
     PageWrapper<VideoProjection> getBySubscribers(int page,int pageSize) throws BadRequestException, InterruptedException;

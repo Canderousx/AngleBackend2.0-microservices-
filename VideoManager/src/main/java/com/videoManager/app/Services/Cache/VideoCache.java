@@ -17,15 +17,19 @@ import java.util.function.Supplier;
 @RequiredArgsConstructor
 @Slf4j
 public class VideoCache {
+
+    // default lifetime of a cached data.
     private final Duration timeValid = Duration.ofMinutes(5);
 
     private final RedisTemplate<String,String>redisTemplate;
+
+    // key of a single video cache
     public String getVideoKey(String videoId){return "video:"+videoId;}
 
-    public String getStreamUrlCacheKey(String videoId){return "stream_url:"+videoId;}
-
+    // key of a list of videos cache
     public String getVideoListKey(){return "list:";}
 
+    // key of a page of videos cache
     public String getVideoPageKey(int page, int pageSize){return "page_"+page+"_size_"+pageSize+":";}
 
     public <T> void saveToCache(String key, T value){
@@ -43,6 +47,8 @@ public class VideoCache {
         redisTemplate.delete(key);
     }
 
+
+
     public <T> T getFromCache(String key, Class<T> clazz){
         String json = redisTemplate.opsForValue().get(key);
         if(json == null){
@@ -58,6 +64,11 @@ public class VideoCache {
         }
         return JsonUtils.readJson(json,reference);
     }
+
+    /*
+    Methods below are meant to reduce boilerplate code in retrieval services.
+    They can get any data stored in redis and allow us to inject a code that will download the data from database if there is no data stored in the cache and then save it.
+     */
 
     public <T> T getFromCacheOrFetch(String cacheKey, TypeReference<T> typeReference, Supplier<T> fetchFunction, Duration cacheDuration) {
         T cachedData = getFromCache(cacheKey, typeReference);

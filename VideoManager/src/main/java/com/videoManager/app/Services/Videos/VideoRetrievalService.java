@@ -107,21 +107,6 @@ public class VideoRetrievalService implements VideoRetrievalInterface {
         );
     }
 
-    @Override
-    public Path getStreamPath(String videoId) {
-        String redisKey = videoCache.getStreamUrlCacheKey(videoId);
-        String url = videoCache.getFromCache(redisKey,String.class);
-        if(url == null){
-            url = videoRepository.getStreamPath(videoId);
-            videoCache.saveToCache(redisKey,url);
-        }
-        Path videoPath = Path.of(url);
-        if (!Files.exists(videoPath)) {
-            throw new RuntimeException("File .m3u8 for ID: " + videoId+" not found!! Path: "+videoPath);
-        }
-        return videoPath;
-    }
-
 
     @Override
     public List<VideoProjection> getMostPopular(int quantity) {
