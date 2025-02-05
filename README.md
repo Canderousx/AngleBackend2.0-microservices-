@@ -42,7 +42,7 @@ It is also responsible for CORS configuration across the entire backend.
 ## *Auth-Service*
 
 Developed with Spring Boot, this service handles user authentication, registration, and JWT (JSON Web Token) generation, including refresh tokens, ensuring continuous authentication while using the platform.
-Each JWT contains user-specific data: the user ID is stored as the subject, and the IP address is included in the token's claims.
+Each JWT contains user-specific data: the user ID is stored as the subject, roles and the IP address are included in the token's claims.
 This allows other microservices — without direct access to the accounts database — to recognize and verify users based on the provided JWT.
 
 Additionally, Auth-Service is responsible for generating account-related notifications, which are then sent through Kafka to the [Notification-Service](#notification-service)
