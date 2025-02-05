@@ -63,16 +63,16 @@ public class JwtService {
     }
 
 
-    public String generatePasswordRecoveryToken(String username){
+    public String generatePasswordRecoveryToken(String id){
         Map<String,Object>claims = new HashMap<>();
         claims.put("src","passwordRecovery");
-        return createToken(claims,username,15 * 60 * 1000);
+        return createToken(claims,id,15 * 60 * 1000);
     }
 
-    public String generateEmailConfirmationToken(String username){
+    public String generateEmailConfirmationToken(String id){
         Map<String,Object>claims = new HashMap<>();
         claims.put("src","emailConfirmation");
-        return createToken(claims,username,15 * 60 * 1000);
+        return createToken(claims,id,15 * 60 * 1000);
     }
 
 

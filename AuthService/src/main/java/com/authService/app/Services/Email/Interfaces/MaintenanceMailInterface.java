@@ -9,9 +9,6 @@ public interface MaintenanceMailInterface {
     void accountUnbanned(BanData banData) throws JsonProcessingException;
     void accountBanned(BanData banData) throws JsonProcessingException;
     void restorePassword(String email) throws AccountNotFoundException, JsonProcessingException;
-
-    void passwordChangeMail(String username) throws AccountNotFoundException;
-
     void confirmationEmail(String email) throws AccountNotFoundException, JsonProcessingException;
 
 }

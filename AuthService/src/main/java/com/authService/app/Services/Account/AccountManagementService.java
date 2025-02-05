@@ -45,8 +45,8 @@ public class AccountManagementService implements AccountManagement {
 
 
     @Override
-    public void confirmEmail(String token) throws AccountNotFoundException, BadRequestException, JsonProcessingException {
-        Account account = accountRetrievalService.getRawAccountByUsername(jwtService.extractUserId(token));
+    public void confirmEmail(String token) throws BadRequestException, JsonProcessingException {
+        Account account = accountRetrievalService.getRawAccountById(jwtService.extractUserId(token));
         if(jwtService.validateEmailConfirmationToken(token)){
             account.setConfirmed(true);
             accountRepository.save(account);
@@ -60,9 +60,9 @@ public class AccountManagementService implements AccountManagement {
     }
 
     @Override
-    public void restorePassword(String newPassword, String token) throws AccountNotFoundException, TokenExpiredException {
+    public void restorePassword(String newPassword, String token) throws TokenExpiredException {
         if (jwtService.validatePasswordRecoveryToken(token)){
-            Account account = accountRetrievalService.getRawAccountByUsername(jwtService.extractUserId(token));
+            Account account = accountRetrievalService.getRawAccountById(jwtService.extractUserId(token));
             account.setPassword(passwordEncoder.encode(newPassword));
             accountRepository.save(account);
             jwtService.invalidateToken(token);

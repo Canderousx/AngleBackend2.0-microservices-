@@ -62,7 +62,7 @@ public class MaintenanceMailService implements MaintenanceMailInterface {
             return;
         }
         Account toRestore = accountRetrievalService.getRawAccountByEmail(email);
-        String token = jwtService.generatePasswordRecoveryToken(toRestore.getUsername());
+        String token = jwtService.generatePasswordRecoveryToken(toRestore.getId());
         String jsonData = mailDataToJson(toRestore.getEmail(),token);
         kafkaSenderService.send(
                 "restore_password_mail",
@@ -71,22 +71,13 @@ public class MaintenanceMailService implements MaintenanceMailInterface {
     }
 
     @Override
-    public void passwordChangeMail(String username){
-        AccountRecord account = accountRetrievalService.getUserByUsername(username);
-        kafkaSenderService.send(
-                "password_changed_mail",
-                account.email()
-        );
-    }
-
-    @Override
     public void confirmationEmail(String email) throws JsonProcessingException {
         if(!accountRetrievalService.emailExists(email)){
             return;
         }
-        AccountRecord account = accountRetrievalService.getUserByEmail(email);
-        String token = jwtService.generateEmailConfirmationToken(account.username());
-        String json = mailDataToJson(account.email(), token);
+        Account account = accountRetrievalService.getRawAccountByEmail(email);
+        String token = jwtService.generateEmailConfirmationToken(account.getId());
+        String json = mailDataToJson(account.getEmail(), token);
         kafkaSenderService.send(
                 "email_confirmation_mail",
                 json

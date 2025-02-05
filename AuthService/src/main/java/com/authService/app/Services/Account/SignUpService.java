@@ -52,6 +52,6 @@ public class SignUpService implements SignUpInterface {
         account.setActive(true);
         account.getRoles().add(userRoleService.getByRoleName("ROLE_USER"));
         accountRepository.save(account);
-        maintenanceMailService.confirmationEmail(account.getEmail());
+        maintenanceMailService.confirmationEmail(account.getId());
     }
 }
