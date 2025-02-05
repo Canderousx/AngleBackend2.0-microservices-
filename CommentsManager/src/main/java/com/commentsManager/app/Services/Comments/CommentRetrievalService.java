@@ -40,14 +40,9 @@ public class CommentRetrievalService implements CommentRetrieval {
     @Override
     public PageWrapper<Comment> getVideoComments(String videoId,int page, int pageSize){
         String redisKey = commentCache.getVideoCommentsKey(videoId,page,pageSize);
-        PageWrapper<Comment> comments = commentCache.getFromCache(redisKey, new TypeReference<PageWrapper<Comment>>() {});
-        if(comments != null){
-            return comments;
-        }
         Pageable paginateSettings = PageRequest.of(page,pageSize, Sort.by("datePublished").descending());
-        comments = new PageWrapper<>(this.commentRepository.findByVideoIdAndIsBannedFalse(videoId,paginateSettings));
-        commentCache.saveToCache(redisKey,comments);
-        return comments;
+        return commentCache.getFromCacheOrFetch(redisKey, new TypeReference<PageWrapper<Comment>>() {},
+                () -> new PageWrapper<>(this.commentRepository.findByVideoIdAndIsBannedFalse(videoId,paginateSettings)));
     }
 
 }

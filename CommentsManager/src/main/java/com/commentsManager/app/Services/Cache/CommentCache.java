@@ -8,6 +8,7 @@ import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
 
 import java.time.Duration;
+import java.util.function.Supplier;
 
 @Service
 @RequiredArgsConstructor
@@ -50,6 +51,56 @@ public class CommentCache {
         }
         return JsonUtils.readJson(json,reference);
     }
+
+    public <T> T getFromCacheOrFetch(String cacheKey, TypeReference<T> typeReference, Supplier<T> fetchFunction, Duration cacheDuration) {
+        T cachedData = getFromCache(cacheKey, typeReference);
+        if (cachedData != null) {
+            return cachedData;
+        }
+        T fetchedData = fetchFunction.get();
+        if (fetchedData != null) {
+            saveToCache(cacheKey, fetchedData, cacheDuration);
+        }
+        return fetchedData;
+    }
+
+    public  <T> T getFromCacheOrFetch(String cacheKey, Class<T> clazz, Supplier<T> fetchFunction, Duration cacheDuration) {
+        T cachedData = getFromCache(cacheKey, clazz);
+        if (cachedData != null) {
+            return cachedData;
+        }
+        T fetchedData = fetchFunction.get();
+        if (fetchedData != null) {
+            saveToCache(cacheKey, fetchedData, cacheDuration);
+        }
+        return fetchedData;
+    }
+
+    public <T> T getFromCacheOrFetch(String cacheKey, TypeReference<T> typeReference, Supplier<T> fetchFunction) {
+        T cachedData = getFromCache(cacheKey, typeReference);
+        if (cachedData != null) {
+            return cachedData;
+        }
+        T fetchedData = fetchFunction.get();
+        if (fetchedData != null) {
+            saveToCache(cacheKey, fetchedData, timeValid);
+        }
+        return fetchedData;
+    }
+
+    public  <T> T getFromCacheOrFetch(String cacheKey, Class<T> clazz, Supplier<T> fetchFunction) {
+        T cachedData = getFromCache(cacheKey, clazz);
+        if (cachedData != null) {
+            return cachedData;
+        }
+        T fetchedData = fetchFunction.get();
+        if (fetchedData != null) {
+            saveToCache(cacheKey, fetchedData, timeValid);
+        }
+        return fetchedData;
+    }
+
+
 
 
 }
