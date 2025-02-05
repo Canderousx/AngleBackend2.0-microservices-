@@ -35,8 +35,14 @@ public class VideoRetrievalService implements VideoRetrievalInterface {
 
     private final VideoCache videoCache;
 
-    private void addRandomVideos(List<VideoProjection>currentList, String currentId){
-        if(currentList.size() < 10){
+
+    /*
+    Helper method, which checks out whether the size of the videos list has the desired size specified in 'maxSize' value.
+    If not, it adds some random videos to fill the list.
+     */
+
+    private void addRandomVideos(List<VideoProjection>currentList, String currentId,int maxSize){
+        if(currentList.size() < maxSize){
             List<String>alreadyIds = new ArrayList<>();
             if(!currentList.isEmpty()){
                 currentList.forEach(video -> {
@@ -45,7 +51,7 @@ public class VideoRetrievalService implements VideoRetrievalInterface {
             }
             currentList.addAll(
                     videoRepository.findBy(VideoSpecification.findRandom(alreadyIds,currentId),
-                            q -> q.as(VideoProjection.class).page(PageRequest.of(0,10-currentList.size()))).toList());
+                            q -> q.as(VideoProjection.class).page(PageRequest.of(0,maxSize-currentList.size()))).toList());
         }
     }
 
@@ -126,24 +132,43 @@ public class VideoRetrievalService implements VideoRetrievalInterface {
                 );
     }
 
+    /*
+
+    Method returns a page of videos that are owned by the accounts logged user is currently subscribing.
+    Subscription data is stored within 'Auth-Service' microservice - that's why the method need to download the data from the Auth-Service API.
+    To reduce the amount of the requests, downloaded data is stored in redis for 1 hour.
+
+    When subscribed channels ids are known, the page of videos is being downloaded from the database and also saved to redis as cache for 5 minutes.
+     */
+
     @Override
     public PageWrapper<VideoProjection> getBySubscribers(int page,int pageSize) {
         String accountId = SecurityContextHolder.getContext().getAuthentication().getName();
         Pageable pageable = PageRequest.of(page,pageSize,Sort.by("datePublished").descending());
         String videoRedisKey = videoCache.getVideoPageKey(page,pageSize)+"_bySubs_"+accountId;
         String subsRedisKey = "subs_list:"+accountId;
-        List<String>subscribersIds = videoCache.getFromCacheOrFetch(subsRedisKey, new TypeReference<List<String>>() {},
-                () -> authService.getRandomSubscribedIds(accountId,10));
-        return videoCache.getFromCacheOrFetch(videoRedisKey, new TypeReference<PageWrapper<VideoProjection>>() {},
-                () -> new PageWrapper<>(
-                        videoRepository.findBy(VideoSpecification.findBySubscribers(subscribersIds),
-                                q -> q.as(VideoProjection.class).page(pageable))));
+        return videoCache.getFromCacheOrFetch(videoRedisKey, new TypeReference<PageWrapper<VideoProjection>>() {}, () -> {
+            List<String>subscribersIds = videoCache.getFromCacheOrFetch(subsRedisKey, new TypeReference<List<String>>() {},
+                    () -> authService.getRandomSubscribedIds(accountId,10),Duration.ofHours(1));
+            return new PageWrapper<>(
+                    videoRepository.findBy(VideoSpecification.findBySubscribers(subscribersIds),
+                            q -> q.as(VideoProjection.class).page(pageable)));
+        });
     }
 
+
+    /*
+
+     Method returns list of videos similar to the one with the given id based on their tags. If the size of the list
+     is less than 10 or the video with the given id has no tags -> random videos will be added as well.
+     Generated list is being cached in redis for a default time - 5 minutes.
+
+     */
     @Override
     public List<VideoProjection> getSimilar(String videoId) throws MediaNotFoundException {
         String redisKey = videoCache.getVideoListKey()+"similar_"+videoId;
-        Pageable pageable = PageRequest.of(0,10,Sort.by("views").descending());
+        int quantity = 10;
+        Pageable pageable = PageRequest.of(0,quantity,Sort.by("views").descending());
         return videoCache.getFromCacheOrFetch(redisKey, new TypeReference<List<VideoProjection>>() {},() ->{
             Video video;
             try {
@@ -154,7 +179,7 @@ public class VideoRetrievalService implements VideoRetrievalInterface {
             }
             List<VideoProjection> videos = new ArrayList<>();
             if(video.getTags().isEmpty()){
-                addRandomVideos(videos,videoId);
+                addRandomVideos(videos,videoId,quantity);
                 return videos;
             }
             Set<String> tagNames = new HashSet<>();
@@ -162,7 +187,7 @@ public class VideoRetrievalService implements VideoRetrievalInterface {
             Page<VideoProjection> page = videoRepository.findBy(VideoSpecification.findSimilar(tagNames,videoId),
                     q -> q.as(VideoProjection.class).page(pageable));
             videos = page.getContent();
-            addRandomVideos(videos,videoId);
+            addRandomVideos(videos,videoId,quantity);
             return videos;
         });
     }
