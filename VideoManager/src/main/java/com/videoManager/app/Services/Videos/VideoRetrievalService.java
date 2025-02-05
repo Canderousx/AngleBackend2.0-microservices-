@@ -19,8 +19,6 @@ import org.springframework.data.domain.*;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
-import java.nio.file.Files;
-import java.nio.file.Path;
 import java.time.Duration;
 import java.util.*;
 
@@ -31,7 +29,7 @@ public class VideoRetrievalService implements VideoRetrievalInterface {
 
     private final VideoRepository videoRepository;
 
-    private final AuthServiceAPIService authService;
+    private final AuthServiceAPIService authServiceAPI;
 
     private final VideoCache videoCache;
 
@@ -127,7 +125,7 @@ public class VideoRetrievalService implements VideoRetrievalInterface {
     Subscription data is stored within 'Auth-Service' microservice - that's why the method need to download the data from the Auth-Service API.
     To reduce the amount of the requests, downloaded data is stored in redis for 1 hour.
 
-    When subscribed channels ids are known, the page of videos is being downloaded from the database and also saved to redis as cache for 5 minutes.
+    When subscribed channels ids are known, the page of videos is being downloaded from the database and also saved to redis as cache for 5 minutes (if it's not empty or null).
      */
 
     @Override
@@ -137,8 +135,13 @@ public class VideoRetrievalService implements VideoRetrievalInterface {
         String videoRedisKey = videoCache.getVideoPageKey(page,pageSize)+"_bySubs_"+accountId;
         String subsRedisKey = "subs_list:"+accountId;
         return videoCache.getFromCacheOrFetch(videoRedisKey, new TypeReference<PageWrapper<VideoProjection>>() {}, () -> {
-            List<String>subscribersIds = videoCache.getFromCacheOrFetch(subsRedisKey, new TypeReference<List<String>>() {},
-                    () -> authService.getRandomSubscribedIds(accountId,10),Duration.ofHours(1));
+            List<String>subscribersIds = videoCache.getFromCacheOrFetch(subsRedisKey, new TypeReference<List<String>>() {}, () -> {
+                List<String> ids = authServiceAPI.getRandomSubscribedIds(accountId,10);
+                if(ids == null || ids.isEmpty()){
+                    return null;
+                }
+                return ids;
+                },Duration.ofHours(1));
             return new PageWrapper<>(
                     videoRepository.findBy(VideoSpecification.findBySubscribers(subscribersIds),
                             q -> q.as(VideoProjection.class).page(pageable)));

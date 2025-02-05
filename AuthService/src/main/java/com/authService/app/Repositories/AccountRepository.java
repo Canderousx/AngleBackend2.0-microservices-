@@ -2,6 +2,7 @@ package com.authService.app.Repositories;
 
 
 import com.authService.app.Models.Account;
+import com.authService.app.Models.Records.AccountRecord;
 import jakarta.transaction.Transactional;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;

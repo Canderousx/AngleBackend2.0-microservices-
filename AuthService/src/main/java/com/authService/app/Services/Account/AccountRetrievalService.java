@@ -8,6 +8,7 @@ import com.authService.app.Models.UserRole;
 import com.authService.app.Repositories.AccountRepository;
 import com.authService.app.Repositories.SubscriptionRepository;
 import com.authService.app.Services.Account.Interfaces.AccountRetrieval;
+import com.authService.app.Services.Cache.AuthCache;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.coyote.BadRequestException;
@@ -31,27 +32,27 @@ public class AccountRetrievalService implements AccountRetrieval {
 
     private final EnvironmentVariables environmentVariables;
 
+    private final AuthCache authCache;
+
 
     @Override
-    @Cacheable(value = "auth_cache",key = "#id +'__email'")
     public String getEmail(String id) {
-        return accountRepository.getEmailById(id);
+        return getUserById(id).email();
     }
 
     @Override
-    @Cacheable(value = "auth_cache",key = "#id +'__username'")
     public String getUsername(String id) {
-        return accountRepository.getUsernameById(id);
+        return getUserById(id).username();
     }
 
     @Override
-    public boolean hasEmailConfirmed(String email) throws AccountNotFoundException {
+    public boolean hasEmailConfirmed(String email) {
         Account account = getRawAccountByEmail(email);
         return account.isConfirmed();
     }
 
     @Override
-    public boolean isBanned(String id) throws AccountNotFoundException {
+    public boolean isBanned(String id) {
         Account account = getRawAccountById(id);
         return !account.isActive();
     }
@@ -64,11 +65,18 @@ public class AccountRetrievalService implements AccountRetrieval {
         }
         return false;
     }
+    private boolean moderatorTest(Set<UserRole>accountRoles){
+        for (UserRole roles : accountRoles){
+            if(roles.getName().equals("ROLE_MODERATOR") || roles.getName().equals("ROLE_ADMIN")){
+                return true;
+            }
+        }
+        return false;
+    }
 
     @Override
-    public boolean isAdmin(String id) throws AccountNotFoundException {
-        Account account = getRawAccountById(id);
-        return adminTest(account.getRoles());
+    public boolean isAdmin(String id){
+        return getUserById(id).admin();
     }
 
     @Override
@@ -82,14 +90,8 @@ public class AccountRetrievalService implements AccountRetrieval {
     }
 
     @Override
-    public boolean isModerator(String id) throws AccountNotFoundException {
-        Account account = getRawAccountById(id);
-        for(UserRole roles : account.getRoles()){
-            if(roles.getName().equals("ROLE_MODERATOR") || roles.getName().equals("ROLE_ADMIN")){
-                return true;
-            }
-        }
-        return false;
+    public boolean isModerator(String id) {
+        return getUserById(id).moderator();
     }
 
 
@@ -99,7 +101,8 @@ public class AccountRetrievalService implements AccountRetrieval {
                 account.getId(),
                 account.getUsername(),
                 account.getEmail(),
-                isAdmin
+                isAdmin,
+                isAdmin || moderatorTest(account.getRoles())
         );
     }
 
@@ -127,49 +130,28 @@ public class AccountRetrievalService implements AccountRetrieval {
     }
 
     @Override
-    @Cacheable(value = "auth_cache",key = "#id")
     public AccountRecord getUserById(String id) {
-        Account account = getRawAccountById(id);
-        return toRecord(account);
-    }
-
-    @Override
-    public AccountRecord getUserByUsername(String username){
-        Account account = getRawAccountByUsername(username);
-        return toRecord(account);
-    }
-
-    @Override
-    public AccountRecord getUserByEmail(String email) {
-        Account account = getRawAccountByEmail(email);
-        return toRecord(account);
+        String redisKey = authCache.getAccountKey(id);
+        return authCache.getFromCacheOrFetch(redisKey, AccountRecord.class,()->{
+            Account account = getRawAccountById(id);
+            return toRecord(account);
+        });
     }
 
     @Override
     public Account getRawAccountById(String id) {
         Optional<Account> accountOpt = accountRepository.findById(id);
         if(accountOpt.isEmpty()){
-            log.info("Account "+id+" not found.");
+            log.info("Account {} not found.",id);
             return null;
         }
         return accountOpt.get();
     }
-
-    @Override
-    public Account getRawAccountByUsername(String username) {
-        Optional<Account> accountOpt = accountRepository.findByUsername(username);
-        if(accountOpt.isEmpty()){
-            log.info("Account not found.");
-            return null;
-        }
-        return accountOpt.get();
-    }
-
     @Override
     public Account getRawAccountByEmail(String email) {
         Optional<Account> accountOpt = accountRepository.findByEmail(email);
         if(accountOpt.isEmpty()){
-            log.info("Account not found.");
+            log.info("Account {} not found.",email);
             return null;
         }
         return accountOpt.get();

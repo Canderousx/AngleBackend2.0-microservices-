@@ -34,16 +34,10 @@ public interface AccountRetrieval {
 
     Account getRawCurrentUser() throws BadRequestException;
 
-    AccountRecord getUserById(String id) throws AccountNotFoundException;
+    AccountRecord getUserById(String id);
 
-    AccountRecord getUserByUsername(String username) throws AccountNotFoundException;
+    Account getRawAccountById(String id);
 
-    AccountRecord getUserByEmail(String email) throws AccountNotFoundException;
-
-    Account getRawAccountById(String id) throws AccountNotFoundException;
-
-    Account getRawAccountByUsername(String username) throws AccountNotFoundException;
-
-    Account getRawAccountByEmail(String email) throws AccountNotFoundException;
+    Account getRawAccountByEmail(String email);
 
 }

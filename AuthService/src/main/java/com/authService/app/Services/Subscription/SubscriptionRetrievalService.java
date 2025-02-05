@@ -29,7 +29,6 @@ public class SubscriptionRetrievalService implements SubscriptionRetrievalInterf
     @Override
     public List<String> getSubscribedChannels(String accountId, int quantity) {
         List<String> subs = subscriptionRepository.getSubscribedChannels(accountId,PageRequest.of(0,quantity)).getContent();
-        log.info("SUBS COUNT: "+subs.size());
         return subs;
     }
 

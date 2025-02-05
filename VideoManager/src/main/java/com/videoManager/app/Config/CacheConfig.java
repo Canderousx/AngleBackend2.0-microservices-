@@ -33,21 +33,6 @@ public class CacheConfig {
     }
 
     @Bean
-    public RedisCacheManager cacheManager(RedisConnectionFactory redisConnectionFactory) {
-        GenericJackson2JsonRedisSerializer jacksonSerializer = new GenericJackson2JsonRedisSerializer();
-        RedisCacheConfiguration config = RedisCacheConfiguration.defaultCacheConfig()
-                .entryTtl(Duration.ofHours(1))
-                .serializeValuesWith(
-                        RedisSerializationContext.SerializationPair.fromSerializer(jacksonSerializer)
-                )
-                .disableCachingNullValues();
-
-        return RedisCacheManager.builder(redisConnectionFactory)
-                .cacheDefaults(config)
-                .build();
-    }
-
-    @Bean
     public RedisTemplate<String, String> redisTemplate(RedisConnectionFactory videoManagerRedisConnectionFactory) {
         RedisTemplate<String, String> template = new RedisTemplate<>();
         template.setConnectionFactory(videoManagerRedisConnectionFactory);

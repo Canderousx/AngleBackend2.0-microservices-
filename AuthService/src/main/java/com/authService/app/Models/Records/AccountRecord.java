@@ -4,7 +4,8 @@ public record AccountRecord(
         String id,
         String username,
         String email,
+        boolean admin,
 
-        boolean admin
+        boolean moderator
 ) {
 }

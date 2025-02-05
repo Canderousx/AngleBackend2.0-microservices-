@@ -93,6 +93,9 @@ public class AccountData {
     @RequestMapping(value = "getSubscribedChannelsRandom",method = RequestMethod.GET)
     public List<String> getSubscribedIds(@RequestParam int quantity,HttpServletRequest request){
         String accountId = request.getHeader("X-Ac-Id");
+        if(accountId == null){
+            return null;
+        }
         return subscriptionRetrievalService.getSubscribedChannels(accountId,quantity);
     }
 
