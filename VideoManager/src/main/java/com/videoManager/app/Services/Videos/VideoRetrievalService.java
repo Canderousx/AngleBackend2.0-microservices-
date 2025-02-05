@@ -14,6 +14,7 @@ import com.videoManager.app.Services.Cache.PageWrapper;
 import com.videoManager.app.Services.Cache.VideoCache;
 import com.videoManager.app.Services.Videos.Interfaces.VideoRetrievalInterface;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.*;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
@@ -25,6 +26,7 @@ import java.util.*;
 
 @Service
 @RequiredArgsConstructor
+@Slf4j
 public class VideoRetrievalService implements VideoRetrievalInterface {
 
     private final VideoRepository videoRepository;
@@ -50,14 +52,12 @@ public class VideoRetrievalService implements VideoRetrievalInterface {
     @Override
     public PageWrapper<VideoProjection> getUserVideos(String userId, int page, int pageSize) {
         String redisKey = videoCache.getVideoPageKey(page,pageSize)+"_"+userId;
-        PageWrapper<VideoProjection> videos = videoCache.getFromCache(redisKey,new TypeReference<PageWrapper<VideoProjection>>() {});
-        if(videos != null){
-            return videos;
-        }
         Pageable pageable = PageRequest.of(page,pageSize,Sort.by("datePublished").descending());
-        videos = new PageWrapper<>(videoRepository.findByAuthorIdAndProcessingFalseAndNameIsNotNullAndIsBannedFalseAndThumbnailIsNotNull(userId,pageable));
-        videoCache.saveToCache(redisKey, videos,Duration.ofMinutes(2));
-        return videos;
+        return videoCache.getFromCacheOrFetch(
+                redisKey,
+                new TypeReference<PageWrapper<VideoProjection>>() {},
+                () -> new PageWrapper<>(
+                        videoRepository.findByAuthorIdAndProcessingFalseAndNameIsNotNullAndIsBannedFalseAndThumbnailIsNotNull(userId,pageable)));
     }
 
     @Override
@@ -84,31 +84,21 @@ public class VideoRetrievalService implements VideoRetrievalInterface {
     @Override
     public VideoProjection getVideo(String videoId) throws MediaBannedException {
         String redisKey = videoCache.getVideoKey(videoId);
-        VideoProjection video = videoCache.getFromCache(redisKey, VideoProjection.class);
-        if(video != null){
-            return video;
-        }
-        if(videoRepository.isBanned(videoId)){
+        VideoProjection video = videoCache.getFromCacheOrFetch(redisKey,VideoProjection.class, () -> videoRepository.findDTOById(videoId).orElse(null)
+                ,Duration.ofHours(1));
+        if(video.getIsBanned()){
             throw new MediaBannedException("Video is banned.");
         }
-        video = videoRepository.findDTOById(videoId).orElse(null);
-        videoCache.saveToCache(redisKey,video,Duration.ofHours(1));
         return video;
     }
 
     @Override
     public PageWrapper<VideoProjection> getLatestVideos(int page, int pageSize) {
         String redisKey = videoCache.getVideoPageKey(page,pageSize)+"_latest";
-        PageWrapper<VideoProjection> videos = videoCache.getFromCache(redisKey, new TypeReference<PageWrapper<VideoProjection>>() {});
-        if(videos != null){
-            return videos;
-        }
         Pageable pageable = PageRequest.of(page,pageSize,Sort.by("datePublished").descending());
-        videos = new PageWrapper<>(videoRepository.findAllByThumbnailIsNotNullAndNameIsNotNullAndIsBannedFalseAndProcessingFalse(pageable));
-        if(videos.getContent().size() > 5){
-            videoCache.saveToCache(redisKey,videos);
-        }
-        return videos;
+        return videoCache.getFromCacheOrFetch(redisKey, new TypeReference<PageWrapper<VideoProjection>>() {},
+                () -> new PageWrapper<>(videoRepository.findAllByThumbnailIsNotNullAndNameIsNotNullAndIsBannedFalseAndProcessingFalse(pageable))
+        );
     }
 
     @Override
@@ -130,62 +120,51 @@ public class VideoRetrievalService implements VideoRetrievalInterface {
     @Override
     public List<VideoProjection> getMostPopular(int quantity) {
         String redisKey = videoCache.getVideoListKey()+"_most_popular";
-        List<VideoProjection> videos = videoCache.getFromCache(redisKey, new TypeReference<List<VideoProjection>>() {});
-        if(videos != null){
-            return videos;
-        }
         Pageable pageable = PageRequest.of(0,quantity,Sort.by("views").descending());
-        videos = videoRepository.findBy(VideoSpecification.findAllActive(),
-                q -> q.as(VideoProjection.class).page(pageable)).getContent();
-        if(videos.size() >= 5){
-            videoCache.saveToCache(redisKey,videos);
-        }
-        return videos;
+        return videoCache.getFromCacheOrFetch(redisKey, new TypeReference<List<VideoProjection>>() {},
+                () -> videoRepository.findBy(VideoSpecification.findAllActive(), q -> q.as(VideoProjection.class).page(pageable).getContent())
+                );
     }
 
     @Override
     public PageWrapper<VideoProjection> getBySubscribers(int page,int pageSize) {
         String accountId = SecurityContextHolder.getContext().getAuthentication().getName();
-
-        String redisKey = videoCache.getVideoPageKey(page,pageSize)+"_bySubs_"+accountId;
-        PageWrapper<VideoProjection> videos = videoCache.getFromCache(redisKey, new TypeReference<PageWrapper<VideoProjection>>() {});
-        if(videos != null){
-            return videos;
-        }
-        List<String>subscribersIds = authService.getRandomSubscribedIds(accountId,10);
-        Pageable pageable = PageRequest.of(page,pageSize);
-        videos = new PageWrapper<>(videoRepository.findBy(VideoSpecification.findBySubscribers(subscribersIds),
-                q -> q.as(VideoProjection.class).page(pageable)));
-        if(videos.getContent().size() >= 5){
-            videoCache.saveToCache(redisKey,videos);
-        }
-        return videos;
+        Pageable pageable = PageRequest.of(page,pageSize,Sort.by("datePublished").descending());
+        String videoRedisKey = videoCache.getVideoPageKey(page,pageSize)+"_bySubs_"+accountId;
+        String subsRedisKey = "subs_list:"+accountId;
+        List<String>subscribersIds = videoCache.getFromCacheOrFetch(subsRedisKey, new TypeReference<List<String>>() {},
+                () -> authService.getRandomSubscribedIds(accountId,10));
+        return videoCache.getFromCacheOrFetch(videoRedisKey, new TypeReference<PageWrapper<VideoProjection>>() {},
+                () -> new PageWrapper<>(
+                        videoRepository.findBy(VideoSpecification.findBySubscribers(subscribersIds),
+                                q -> q.as(VideoProjection.class).page(pageable))));
     }
 
     @Override
     public List<VideoProjection> getSimilar(String videoId) throws MediaNotFoundException {
         String redisKey = videoCache.getVideoListKey()+"similar_"+videoId;
-        List<VideoProjection>videos = videoCache.getFromCache(redisKey, new TypeReference<List<VideoProjection>>() {});
-        if(videos != null){
-            return videos;
-        }
-
-        Video video = getRawVideo(videoId);
-        if(video.getTags().isEmpty()){
-            videos = new ArrayList<>();
+        Pageable pageable = PageRequest.of(0,10,Sort.by("views").descending());
+        return videoCache.getFromCacheOrFetch(redisKey, new TypeReference<List<VideoProjection>>() {},() ->{
+            Video video;
+            try {
+                video = getRawVideo(videoId);
+            } catch (MediaNotFoundException e) {
+                log.error("Video {} not found!!",videoId);
+                return null;
+            }
+            List<VideoProjection> videos = new ArrayList<>();
+            if(video.getTags().isEmpty()){
+                addRandomVideos(videos,videoId);
+                return videos;
+            }
+            Set<String> tagNames = new HashSet<>();
+            video.getTags().forEach(tag -> tagNames.add(tag.getName()));
+            Page<VideoProjection> page = videoRepository.findBy(VideoSpecification.findSimilar(tagNames,videoId),
+                    q -> q.as(VideoProjection.class).page(pageable));
+            videos = page.getContent();
             addRandomVideos(videos,videoId);
             return videos;
-        }
-        Set<String> tagNames = new HashSet<>();
-        video.getTags().forEach(tag -> tagNames.add(tag.getName()));
-        Page<VideoProjection> page = videoRepository.findBy(VideoSpecification.findSimilar(tagNames,videoId),
-                q -> q.as(VideoProjection.class).page(PageRequest.of(0,10)));
-        videos = new ArrayList<>(page.getContent());
-        addRandomVideos(videos,videoId);
-        if(videos.size() >= 10){
-            videoCache.saveToCache(redisKey,videos);
-        }
-        return videos;
+        });
     }
     @Override
     public int howManyUserVideos(String userId){
