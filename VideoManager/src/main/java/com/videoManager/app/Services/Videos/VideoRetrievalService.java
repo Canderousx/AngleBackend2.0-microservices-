@@ -37,7 +37,7 @@ public class VideoRetrievalService implements VideoRetrievalInterface {
 
 
     /*
-    Helper method, which checks out whether the size of the videos list has the desired size specified in 'maxSize' value.
+    Helper method, which checks out whether the list of the videos has the desired size specified in 'maxSize' value.
     If not, it adds some random videos to fill the list.
      */
 
