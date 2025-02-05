@@ -3,6 +3,7 @@ package com.authService.app.Services.Subscription;
 
 import com.authService.app.Models.Subscription;
 import com.authService.app.Repositories.SubscriptionRepository;
+import com.authService.app.Services.Cache.AuthCache;
 import com.authService.app.Services.Subscription.Interfaces.SubscriptionRetrievalInterface;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -28,8 +29,7 @@ public class SubscriptionRetrievalService implements SubscriptionRetrievalInterf
 
     @Override
     public List<String> getSubscribedChannels(String accountId, int quantity) {
-        List<String> subs = subscriptionRepository.getSubscribedChannels(accountId,PageRequest.of(0,quantity)).getContent();
-        return subs;
+        return subscriptionRepository.getSubscribedChannels(accountId,PageRequest.of(0,quantity)).getContent();
     }
 
     @Override

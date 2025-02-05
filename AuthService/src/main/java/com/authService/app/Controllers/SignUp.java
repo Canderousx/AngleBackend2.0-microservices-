@@ -30,7 +30,7 @@ public class SignUp {
     }
 
     @RequestMapping(value = "/confirmEmail",method = RequestMethod.POST)
-    public ResponseEntity<ServerMessage> confirmEmail(@RequestParam String token) throws BadRequestException, AccountNotFoundException, JsonProcessingException {
+    public ResponseEntity<ServerMessage> confirmEmail(@RequestParam String token) throws BadRequestException, JsonProcessingException {
         this.accountManagementService.confirmEmail(token);
         return ResponseEntity.ok(new ServerMessage("Email has been confirmed. You can now sign in."));
     }
