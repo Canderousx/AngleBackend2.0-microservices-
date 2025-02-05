@@ -7,7 +7,7 @@ This project is the newest iteration of Angle Backend (see: https://github.com/C
 
 - The backend has been divided into microservices
 - Apache Kafka as a message broker
-- WebSocket for real-time user notifications
+- WebSocket for real-time user notifications and to track user activity to gain statistics data, such as views.
 - Redis and Spring Cache for data caching.
 
 
