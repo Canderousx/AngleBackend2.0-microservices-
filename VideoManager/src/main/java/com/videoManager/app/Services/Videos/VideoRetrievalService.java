@@ -42,7 +42,10 @@ public class VideoRetrievalService implements VideoRetrievalInterface {
      */
 
     private void addRandomVideos(List<VideoProjection>currentList, String currentId,int maxSize){
-        if(currentList.size() < maxSize){
+        int currentSize = currentList.size();
+        if(currentSize < maxSize){
+            int howManyToAdd = maxSize - currentSize;
+            log.info("Number of videos is less than desired {}",maxSize);
             List<String>alreadyIds = new ArrayList<>();
             if(!currentList.isEmpty()){
                 currentList.forEach(video -> {
@@ -51,8 +54,9 @@ public class VideoRetrievalService implements VideoRetrievalInterface {
             }
             currentList.addAll(
                     videoRepository.findBy(VideoSpecification.findRandom(alreadyIds,currentId),
-                            q -> q.as(VideoProjection.class).page(PageRequest.of(0,maxSize-currentList.size()))).toList());
+                            q -> q.as(VideoProjection.class).page(PageRequest.of(0,howManyToAdd))).getContent());
         }
+        log.info("Number of videos equals or exceeds {}, adding random aborted",maxSize);
     }
 
     @Override
@@ -164,15 +168,19 @@ public class VideoRetrievalService implements VideoRetrievalInterface {
             }
             List<VideoProjection> videos = new ArrayList<>();
             if(video.getTags().isEmpty()){
+                log.info("Video without tags - adding {} random videos to the list.",quantity);
                 addRandomVideos(videos,videoId,quantity);
                 return videos;
             }
             Set<String> tagNames = new HashSet<>();
             video.getTags().forEach(tag -> tagNames.add(tag.getName()));
+            log.info("Video tags loaded. Finding similar videos from a database.");
             Page<VideoProjection> page = videoRepository.findBy(VideoSpecification.findSimilar(tagNames,videoId),
                     q -> q.as(VideoProjection.class).page(pageable));
-            videos = page.getContent();
+            videos = new ArrayList<>(page.getContent());
+            log.info("Found {} similar videos",videos.size());
             addRandomVideos(videos,videoId,quantity);
+            log.info("Total videos count in a list {}",videos.size());
             return videos;
         });
     }

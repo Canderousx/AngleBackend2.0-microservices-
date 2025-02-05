@@ -22,14 +22,11 @@ public class SubscriptionManagementService implements SubscriptionManagementInte
 
     private final AccountRetrievalService accountRetrievalService;
 
-    private final CacheService cacheService;
 
     @Override
     @Transactional
     public void deleteSubscription(String accountId, String channelId) {
         subscriptionRepository.deleteByAccountIdAndChannelId(accountId,channelId);
-        cacheService.evictFromCache(accountId+"__"+channelId+"__is_subscriber");
-        cacheService.evictFromCache(accountId+"__random_channels_subs");
     }
 
     @Override
@@ -40,8 +37,6 @@ public class SubscriptionManagementService implements SubscriptionManagementInte
             sub.setAccountId(accountId);
             sub.setChannelId(channelId);
             subscriptionRepository.save(sub);
-            cacheService.evictFromCache(accountId+"__"+channelId+"__is_subscriber");
-            cacheService.evictFromCache(accountId+"__random_channels_subs");
             notificationGeneratorService.newSubscriberNotification(channelId,username,accountId);
         }
     }

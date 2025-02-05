@@ -20,8 +20,6 @@ public class SubscriptionRetrievalService implements SubscriptionRetrievalInterf
 
     private final SubscriptionRepository subscriptionRepository;
 
-    private final CacheService cacheService;
-
 
     @Override
     public Subscription getSubscription(String accountId, String channelId) {
@@ -49,6 +47,6 @@ public class SubscriptionRetrievalService implements SubscriptionRetrievalInterf
 
     @Override
     public boolean isSubscriber(String accountId, String channelId) {
-        return cacheService.getWithCache(accountId+"__"+channelId+"__is_subscriber",subscriptionRepository::existsByAccountIdAndChannelId);
+        return subscriptionRepository.existsByAccountIdAndChannelId(accountId, channelId);
     }
 }
