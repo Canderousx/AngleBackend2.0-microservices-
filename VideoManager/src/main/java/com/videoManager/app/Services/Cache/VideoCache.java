@@ -66,8 +66,8 @@ public class VideoCache {
     }
 
     /*
-    Methods below are meant to reduce boilerplate code in retrieval services.
-    They can get any data stored in redis and allow us to inject a code that will download the data from database if there is no data stored in the cache and then save it.
+     * Methods below are meant to reduce boilerplate code in retrieval services.
+     * They can get any data stored in redis and allow us to inject a code that will download the data from database if there is no data stored in the cache and then save it.
      */
 
     public <T> T getFromCacheOrFetch(String cacheKey, TypeReference<T> typeReference, Supplier<T> fetchFunction, Duration cacheDuration) {

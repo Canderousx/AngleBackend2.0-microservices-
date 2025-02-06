@@ -9,6 +9,8 @@ public interface VideoStatsManagementInterface {
 
     void onEnded(String userId,String videoId);
 
+    void onEnded(String key);
+
     void likeVideo(String videoId);
 
     void dislikeVideo(String videoId);

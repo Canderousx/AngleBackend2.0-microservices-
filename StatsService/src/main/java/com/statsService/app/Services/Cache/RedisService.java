@@ -70,8 +70,4 @@ public class RedisService {
         return clazz.cast(value);
     }
 
-
-
-
-
 }
