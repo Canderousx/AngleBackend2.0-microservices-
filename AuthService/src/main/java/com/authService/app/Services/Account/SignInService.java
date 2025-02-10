@@ -78,6 +78,7 @@ public class SignInService implements SignInInterface {
             throw new UnknownRefreshTokenException("Refresh token or fingerprint is null!");
         }
         if(!refreshTokenService.validateRefreshToken(refreshToken,fingerprint)){
+            refreshTokenService.removeRefreshToken(refreshToken);
             return null;
         }
         RefreshToken refresh = refreshTokenService.findToken(refreshToken);
