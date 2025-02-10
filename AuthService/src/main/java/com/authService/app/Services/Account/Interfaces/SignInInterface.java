@@ -10,8 +10,8 @@ import org.apache.coyote.BadRequestException;
 
 public interface SignInInterface {
 
-    String refreshAccessToken(String refreshToken,String ipAddress) throws UnknownRefreshTokenException, TokenExpiredException;
-    AuthRecord signIn(LoginRecord loginRecord, String ipAddress) throws AccountNotFoundException, BadRequestException, JsonProcessingException;
+    String refreshAccessToken(String refreshToken,String fingerprint) throws UnknownRefreshTokenException, TokenExpiredException;
+    AuthRecord signIn(LoginRecord loginRecord) throws AccountNotFoundException, BadRequestException, JsonProcessingException;
 
     void logout(String token,String refreshToken);
 

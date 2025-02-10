@@ -27,7 +27,7 @@ public class ExceptionHandler {
     @org.springframework.web.bind.annotation.ExceptionHandler(UnknownRefreshTokenException.class)
     public ResponseEntity<ServerMessage> handleUnknownRefreshTokenException(UnknownRefreshTokenException e){
         log.info(e.getMessage());
-        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(new ServerMessage("You need to signIn."));
+        return ResponseEntity.status(909).body(new ServerMessage("You need to signIn."));
     }
 
     @org.springframework.web.bind.annotation.ExceptionHandler(AccountNotFoundException.class)

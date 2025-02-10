@@ -50,9 +50,8 @@ public class JwtService {
                 .compact();
     }
 
-    public String generateToken(String userId, String userIP, Collection<? extends GrantedAuthority> roles){
+    public String generateToken(String userId, Collection<? extends GrantedAuthority> roles){
         Map<String,Object> claims = new HashMap<>();
-        claims.put("IP",userIP);
         claims.put(
                 "roles",
                 roles.stream()
@@ -82,12 +81,6 @@ public class JwtService {
         return claimsResolver.apply(claims);
     }
 
-    private String extractIP(String token){
-        return extractClaim(token, claims -> {
-            return (String) claims.get("IP");
-        });
-    }
-
     public Collection<? extends GrantedAuthority>extractAuthorities(String token){
         return extractClaim(token, claims -> {
             return (Collection<? extends GrantedAuthority>) claims.get("roles");
@@ -115,8 +108,7 @@ public class JwtService {
             return false;
         }
         final String userId = extractUserId(token);
-        final String savedIP = extractIP(token);
-        return userId.equals(userDetails.getId()) && !isTokenExpired(token) && (savedIP.equals(userIP)) && !this.invalidatedTokens.contains(token);
+        return userId.equals(userDetails.getId()) && !isTokenExpired(token) && !this.invalidatedTokens.contains(token);
     }
 
     public Boolean validatePasswordRecoveryToken(String token){

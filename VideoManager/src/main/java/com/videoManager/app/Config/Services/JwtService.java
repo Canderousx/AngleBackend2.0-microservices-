@@ -3,20 +3,14 @@ package com.videoManager.app.Config.Services;
 import com.videoManager.app.Models.EnvironmentVariables;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
-import io.jsonwebtoken.io.Decoders;
-import io.jsonwebtoken.security.Keys;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.security.Key;
 import java.util.*;
 import java.util.function.Function;
 
 @Service
 public class JwtService {
-
-    private final Set<String> invalidatedTokens = new HashSet<>();
-
     @Autowired
     private EnvironmentVariables environmentVariables;
 
@@ -33,13 +27,7 @@ public class JwtService {
         final Claims claims = extractAllClaims(token);
         return claimsResolver.apply(claims);
     }
-
-    private String extractIP(String token){
-        return extractClaim(token, claims -> {
-            return (String) claims.get("IP");
-        });
-    }
-    public String extractUsername(String token){
+    public String extractUserId(String token){
         return extractClaim(token,Claims::getSubject);
     }
 
@@ -50,16 +38,14 @@ public class JwtService {
     public Boolean isTokenExpired(String token){
         return extractExpiration(token).before(new Date(System.currentTimeMillis()));
     }
-    public Boolean validateToken(String token, String email, String userIP){
+    public Boolean validateToken(String token){
         if (token == null || token.isEmpty()) {
             return false;
         }
         Map<String, Object> claims = extractAllClaims(token);
-        if (claims.containsKey("src")) {
+        if (claims.containsKey("src") || extractUserId(token) == null) {
             return false;
         }
-        final String username = extractUsername(token);
-        final String savedIP = extractIP(token);
-        return username.equals(email) && !isTokenExpired(token) && (savedIP.equals(userIP));
+        return !isTokenExpired(token);
     }
 }

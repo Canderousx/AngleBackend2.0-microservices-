@@ -116,7 +116,7 @@ public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
                             .map(role -> new SimpleGrantedAuthority(role.toString().toUpperCase()))
                             .collect(Collectors.toList());
 
-                    if (jwtService.validateToken(token, userId, ipAddress)) {
+                    if (jwtService.validateToken(token)) {
                         UsernamePasswordAuthenticationToken authToken = new UsernamePasswordAuthenticationToken(
                                 userId,
                                 null,

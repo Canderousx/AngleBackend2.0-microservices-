@@ -26,7 +26,7 @@ public class RefreshToken {
 
     private Instant expirationDate;
 
-    private String ipAddress;
+    private String fingerprint;
 
     private String accountId;
 }

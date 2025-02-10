@@ -28,22 +28,18 @@ public class SignIn {
     private final SignInService signInService;
 
     @RequestMapping(value = "",method = RequestMethod.POST)
-    public AuthRecord signIn(@RequestBody LoginRecord loginRecord, HttpServletRequest request) throws BadRequestException, AccountNotFoundException, JsonProcessingException {
-        String ip = request.getHeader("X-Forwarded-For");
-        if(ip == null){
-            return null;
-        }
-        return this.signInService.signIn(loginRecord,ip);
+    public AuthRecord signIn(@RequestBody LoginRecord loginRecord) throws BadRequestException, AccountNotFoundException, JsonProcessingException {
+        return this.signInService.signIn(loginRecord);
     }
 
     @RequestMapping(value = "/refresh",method = RequestMethod.POST)
-    public String refreshToken(@RequestBody Map<String,Object> refreshRequest,HttpServletRequest request) throws UnknownRefreshTokenException, TokenExpiredException {
+    public String refreshToken(@RequestBody Map<String,Object> refreshRequest) throws UnknownRefreshTokenException, TokenExpiredException {
         String refreshToken = (String) refreshRequest.get("refreshToken");
-        String ip = request.getHeader("X-Forwarded-For");
-        if(ip == null){
+        String fingerPrint = (String) refreshRequest.get("fp");
+        if(fingerPrint == null){
             return null;
         }
-        return signInService.refreshAccessToken(refreshToken,ip);
+        return signInService.refreshAccessToken(refreshToken,fingerPrint);
     }
 
     @RequestMapping(value = "/logout",method = RequestMethod.POST)

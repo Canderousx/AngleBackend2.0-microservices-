@@ -18,10 +18,10 @@ public class RefreshTokenService {
     private final RefreshTokenRepository refreshTokenRepository;
 
 
-    public RefreshToken createRefreshToken(String userId,String userIp){
+    public RefreshToken createRefreshToken(String userId,String fingerprint){
         RefreshToken refreshToken = RefreshToken.builder()
                 .accountId(userId)
-                .ipAddress(userIp)
+                .fingerprint(fingerprint)
                 .expirationDate(Instant.now().plusSeconds(604800))//one week expiration - 604 800 seconds
                 .token(UUID.randomUUID().toString())
                 .build();
@@ -39,11 +39,11 @@ public class RefreshTokenService {
         refreshTokenRepository.deleteAllByAccountId(accountId);
     }
 
-    public boolean validateRefreshToken(String token, String userIp) throws UnknownRefreshTokenException, TokenExpiredException {
+    public boolean validateRefreshToken(String token, String fingerprint) throws UnknownRefreshTokenException, TokenExpiredException {
         RefreshToken refreshToken = refreshTokenRepository.findByToken(token).orElseThrow(
                 () -> new UnknownRefreshTokenException("Refresh token unrecognized!")
         );
-        if (!refreshToken.getIpAddress().equals(userIp)){
+        if (!refreshToken.getFingerprint().equals(fingerprint)){
             return false;
         }
         if(refreshToken.getExpirationDate().compareTo(Instant.now()) < 0){

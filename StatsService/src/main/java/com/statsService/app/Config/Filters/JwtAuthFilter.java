@@ -51,7 +51,7 @@ public class JwtAuthFilter extends OncePerRequestFilter {
                     Collection<GrantedAuthority> roles = rolesFromToken.stream()
                             .map(role -> new SimpleGrantedAuthority(role.toString().toUpperCase()))
                             .collect(Collectors.toList());
-                    if(jwtService.validateToken(token,userId,request.getHeader("X-Forwarded-For"))){
+                    if(jwtService.validateToken(token)){
                         UsernamePasswordAuthenticationToken authToken = new UsernamePasswordAuthenticationToken(
                                 userId,
                                 null,

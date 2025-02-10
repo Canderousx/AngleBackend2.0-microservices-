@@ -43,7 +43,7 @@ public class SignInService implements SignInInterface {
     private final String loginFailMessage = "Invalid username or password.";
 
     @Override
-    public AuthRecord signIn(LoginRecord loginRecord, String ipAddress) throws AccountNotFoundException, BadRequestException, JsonProcessingException {
+    public AuthRecord signIn(LoginRecord loginRecord) throws BadRequestException, JsonProcessingException {
         Account toLogin = accountRetrievalService.getRawAccountByEmail((loginRecord.email()));
         if(toLogin == null){
             System.out.println("null");
@@ -61,8 +61,8 @@ public class SignInService implements SignInInterface {
                     new UsernamePasswordAuthenticationToken(toLogin.getId(),loginRecord.password())
             );
             if(authentication.isAuthenticated()){
-                String refreshToken = refreshTokenService.createRefreshToken(toLogin.getId(),ipAddress).getToken();
-                return new AuthRecord(jwtService.generateToken(toLogin.getId(),ipAddress,toLogin.getAuthorities()),refreshToken);
+                String refreshToken = refreshTokenService.createRefreshToken(toLogin.getId(),loginRecord.fingerprint()).getToken();
+                return new AuthRecord(jwtService.generateToken(toLogin.getId(),toLogin.getAuthorities()),refreshToken);
             }else{
                 throw new BadCredentialsException(loginFailMessage);
             }
@@ -73,16 +73,16 @@ public class SignInService implements SignInInterface {
     }
 
     @Override
-    public String refreshAccessToken(String refreshToken,String ipAddress) throws UnknownRefreshTokenException, TokenExpiredException {
-        if(refreshToken == null){
-            throw new UnknownRefreshTokenException("Refresh token is null!");
+    public String refreshAccessToken(String refreshToken,String fingerprint) throws UnknownRefreshTokenException, TokenExpiredException {
+        if(refreshToken == null || fingerprint == null){
+            throw new UnknownRefreshTokenException("Refresh token or fingerprint is null!");
         }
-        if(!refreshTokenService.validateRefreshToken(refreshToken,ipAddress)){
+        if(!refreshTokenService.validateRefreshToken(refreshToken,fingerprint)){
             return null;
         }
         RefreshToken refresh = refreshTokenService.findToken(refreshToken);
         Account user = accountRetrievalService.getRawAccountById(refresh.getAccountId());
-        return jwtService.generateToken(user.getId(),ipAddress,user.getAuthorities());
+        return jwtService.generateToken(user.getId(),user.getAuthorities());
     }
 
     @Override
