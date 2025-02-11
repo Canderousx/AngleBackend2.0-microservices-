@@ -113,9 +113,9 @@ public class VideoRetrievalService implements VideoRetrievalInterface {
     @Override
     public List<VideoProjection> getMostPopular(int quantity) {
         String redisKey = videoCache.getVideoListKey()+"_most_popular";
-        Pageable pageable = PageRequest.of(0,quantity,Sort.by("views").descending());
+        Pageable pageable = PageRequest.of(0,quantity);
         return videoCache.getFromCacheOrFetch(redisKey, new TypeReference<List<VideoProjection>>() {},
-                () -> videoRepository.findBy(VideoSpecification.findAllActive(), q -> q.as(VideoProjection.class).page(pageable).getContent())
+                () -> videoRepository.findBy(VideoSpecification.findMostPopular(), q -> q.as(VideoProjection.class).page(pageable).getContent())
                 );
     }
 

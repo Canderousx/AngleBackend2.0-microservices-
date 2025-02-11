@@ -28,6 +28,14 @@ public class VideoSpecification {
 
     }
 
+    public static Specification<Video>findMostPopular(){
+        return (root,query,criteriaBuilder) ->{
+            List<Predicate>predicates = videoActivePredicates(root,criteriaBuilder);
+            query.orderBy(criteriaBuilder.desc(root.get("views")));
+            return criteriaBuilder.and(predicates.toArray(new Predicate[0]));
+        };
+    }
+
     public static Specification<Video>findBySubscribers(List<String>subIds){
         return (root,query,criteriaBuilder) ->{
             List<Predicate> predicates = videoActivePredicates(root,criteriaBuilder);

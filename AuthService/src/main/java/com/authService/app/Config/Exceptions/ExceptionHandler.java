@@ -7,6 +7,7 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.apache.tomcat.util.http.fileupload.InvalidFileNameException;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.HttpStatusCode;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authorization.AuthorizationDeniedException;
@@ -27,7 +28,7 @@ public class ExceptionHandler {
     @org.springframework.web.bind.annotation.ExceptionHandler(UnknownRefreshTokenException.class)
     public ResponseEntity<ServerMessage> handleUnknownRefreshTokenException(UnknownRefreshTokenException e){
         log.info(e.getMessage());
-        return ResponseEntity.status(909).body(new ServerMessage("You need to signIn."));
+        return ResponseEntity.status(HttpStatusCode.valueOf(901)).body(new ServerMessage("You need to signIn."));
     }
 
     @org.springframework.web.bind.annotation.ExceptionHandler(AccountNotFoundException.class)

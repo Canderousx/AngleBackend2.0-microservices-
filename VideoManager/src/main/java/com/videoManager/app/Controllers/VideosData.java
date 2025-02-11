@@ -27,7 +27,7 @@ public class VideosData {
     }
 
     @RequestMapping(value = "/getVideo",method = RequestMethod.GET)
-    public VideoProjection getVideo(@RequestParam String id) throws MediaNotFoundException, MediaBannedException {
+    public VideoProjection getVideo(@RequestParam String id) throws MediaBannedException {
         return videoRetrievalService.getVideo(id);
     }
     @RequestMapping(value = "/getUserVideos",method = RequestMethod.GET)
