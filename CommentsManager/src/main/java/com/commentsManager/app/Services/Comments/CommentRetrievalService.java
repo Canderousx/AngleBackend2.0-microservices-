@@ -54,7 +54,7 @@ public class CommentRetrievalService implements CommentRetrieval {
     @Override
     public PageWrapper<Comment> getCommentReplies(String parentCommentId, int page, int pageSize) {
         String redisKey = commentCache.getCommentRepliesKey(parentCommentId,page,pageSize);
-        Pageable paginate = PageRequest.of(page,pageSize,Sort.by("datePublished").descending());
+        Pageable paginate = PageRequest.of(page,pageSize,Sort.by("datePublished").ascending());
         return commentCache.getFromCacheOrFetch(redisKey, new TypeReference<PageWrapper<Comment>>() {},
                 () -> new PageWrapper<>(this.commentRepository.findByParentCommentIdAndIsBannedFalse(parentCommentId,paginate)));
     }
