@@ -32,7 +32,9 @@ public class SecurityConfig implements WebMvcConfigurer {
     @Bean
     public String[]permitAllEndpoints(){
         return new String[]{
-                "/comments/getVideoComments"
+                "/comments/getVideoComments",
+                "/comments/getReplies",
+                "/comments/countAllComments"
         };
     }
     @Bean

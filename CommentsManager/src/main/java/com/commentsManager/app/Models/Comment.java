@@ -1,9 +1,9 @@
 package com.commentsManager.app.Models;
 
+import jakarta.annotation.Nullable;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
-import jakarta.persistence.Transient;
 import lombok.Data;
 import org.hibernate.annotations.JdbcTypeCode;
 import org.hibernate.annotations.UuidGenerator;
@@ -29,6 +29,12 @@ public class Comment {
     @Column(name = "videoid", columnDefinition = "VARCHAR(36)")
     private String videoId;
 
+    @Nullable
+    private String parentCommentId;
+
+    @Nullable
+    private String parentCommentAuthorId;
+
     private Date datePublished;
 
     private String authorName;
@@ -38,8 +44,5 @@ public class Comment {
 
     @Column(name = "isbanned")
     private boolean isBanned = false;
-
-
-
 
 }

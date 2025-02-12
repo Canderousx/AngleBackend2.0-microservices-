@@ -34,11 +34,15 @@ public class CommentManagementService implements CommentManagement {
         if(comment !=null){
             comment.setDatePublished(new Date());
             this.commentRepository.save(comment);
+            String parentCommentId = comment.getParentCommentId();
+            String parentAuthorId = comment.getParentCommentAuthorId();
             CommentNotificationData cnd = new CommentNotificationData(
                     comment.getAuthorId(),
                     comment.getAuthorName(),
                     comment.getVideoId(),
-                    comment.getDatePublished()
+                    comment.getDatePublished(),
+                    parentAuthorId,
+                    parentCommentId
             );
             String json = JsonUtils.toJson(cnd);
             kafkaSenderService.send("new_comment_added",json);

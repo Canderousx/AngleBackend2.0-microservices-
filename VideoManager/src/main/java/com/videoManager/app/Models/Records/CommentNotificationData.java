@@ -9,6 +9,11 @@ public record CommentNotificationData(
 
         String videoId,
 
-        Date datePublished
+        Date datePublished,
+
+        String parentAuthorId,
+        String parentCommentId
+
+
 ) {
 }

@@ -21,10 +21,12 @@ public interface CommentRepository extends JpaRepository<Comment, String> {
 
     Page<Comment>findByAuthorIdOrderByDatePublishedDesc(String authorId,Pageable pageable);
 
-    Page<Comment> findByVideoIdAndIsBannedFalse(String videoId, Pageable pageable);
+    Page<Comment> findByVideoIdAndIsBannedFalseAndParentCommentIdIsNull(String videoId, Pageable pageable);
 
-    @Query(value = "SELECT count(*) FROM comment c WHERE c.videoid = :videoId",nativeQuery = true)
-    int countAllVideoComments(@RequestParam("videoId")String videoId);
+    Page<Comment> findByParentCommentIdAndIsBannedFalse(String parentCommentId,Pageable pageable);
+
+    @Query(value = "SELECT count(*) FROM comment c WHERE c.videoid = :videoId AND isbanned = false",nativeQuery = true)
+    long countAllVideoComments(@RequestParam("videoId")String videoId);
 
     @Modifying
     @Transactional

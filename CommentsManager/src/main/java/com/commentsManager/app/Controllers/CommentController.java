@@ -30,6 +30,16 @@ public class CommentController {
         return commentRetrievalService.getVideoComments(id,page,pageSize);
     }
 
+    @RequestMapping(value = "/getReplies",method = RequestMethod.GET)
+    public PageWrapper<Comment> getReplies(@RequestParam String parentCommentId, @RequestParam int page, @RequestParam int pageSize){
+        return commentRetrievalService.getCommentReplies(parentCommentId,page,pageSize);
+    }
+
+    @RequestMapping(value = "/countAllComments",method = RequestMethod.GET)
+    public Long countAllComments(@RequestParam String videoId){
+        return commentRetrievalService.countAllComments(videoId);
+    }
+
 
     @RequestMapping(value = "/addComment",method = RequestMethod.POST)
     public ResponseEntity<ServerMessage> addComment(@RequestBody Comment comment) throws IOException{

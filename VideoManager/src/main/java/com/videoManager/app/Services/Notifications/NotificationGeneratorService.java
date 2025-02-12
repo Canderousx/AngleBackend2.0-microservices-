@@ -27,13 +27,30 @@ public class NotificationGeneratorService implements NotificationGenerator {
     @Override
     public void newCommentNotification(CommentNotificationData commentNotificationData) {
         String videoAuthorId = videoRetrievalService.getAuthorId(commentNotificationData.videoId());
-        if(!commentNotificationData.authorId().equals(videoAuthorId)){
+        String imageUrl ="/api/auth/accounts/media/getAvatar?userId="+commentNotificationData.authorId();
+        String videoUrl = "/watch?v="+commentNotificationData.videoId();
+        String parentCommentId = commentNotificationData.parentCommentId();
+        String parentAuthorId = commentNotificationData.parentAuthorId();
+
+        if(parentCommentId != null && parentAuthorId != null && !parentAuthorId.equals(commentNotificationData.authorId())){
+            sendNotification(new NotificationRecord(
+                    commentNotificationData.parentAuthorId(),
+                    commentNotificationData.authorUsername()+" replied to your comment.",
+                    null,
+                    imageUrl,
+                    videoUrl,
+                    true
+            ));
+            return;
+        }
+
+        if (!commentNotificationData.authorId().equals(videoAuthorId)){
             sendNotification(new NotificationRecord(
                     videoAuthorId,
                     commentNotificationData.authorUsername()+" has just commented your video!",
                     null,
-                    "/api/auth/accounts/media/getAvatar?userId="+commentNotificationData.authorId(),
-                    "/watch?v="+commentNotificationData.videoId(),
+                    imageUrl,
+                    videoUrl,
                     true
             ));
         }

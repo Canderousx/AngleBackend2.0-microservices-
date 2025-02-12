@@ -17,9 +17,11 @@ public class CommentCache {
     private final Duration timeValid = Duration.ofSeconds(10);
 
     private final RedisTemplate<String,String>redisTemplate;
-    public String getVideoCommentsKey(String videoId,int page, int pageSize){return "comments_"+page+"_"+pageSize+":"+videoId;}
+    public String getVideoCommentsKey(String videoId,int page, int pageSize){return "comments_"+videoId+"_"+page+"_"+pageSize;}
 
-    public String getCommentsNumberKey(String videoId){return "comments_num:"+videoId;}
+    public String getCommentRepliesKey(String parentId, int page, int pageSize){return "replies_"+parentId+"_"+page+"_"+pageSize;}
+
+    public String getCommentCountKey(String videoId){return "comments_count:"+videoId;}
 
     public <T> void saveToCache(String key, T value){
         String json = JsonUtils.toJson(value);

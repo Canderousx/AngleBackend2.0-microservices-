@@ -16,5 +16,9 @@ public interface CommentRetrieval {
 
     PageWrapper<Comment> getVideoComments(String videoId, int page, int pageSize) throws IOException, ClassNotFoundException, MediaNotFoundException;
 
+    PageWrapper<Comment> getCommentReplies(String parentCommentId,int page, int pageSize);
+
+    Long countAllComments(String videoId);
+
 
 }

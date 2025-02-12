@@ -38,11 +38,26 @@ public class CommentRetrievalService implements CommentRetrieval {
     }
 
     @Override
+    public Long countAllComments(String videoId) {
+        String redisKey = commentCache.getCommentCountKey(videoId);
+        return commentCache.getFromCacheOrFetch(redisKey, Long.class,() -> commentRepository.countAllVideoComments(videoId));
+    }
+
+    @Override
     public PageWrapper<Comment> getVideoComments(String videoId,int page, int pageSize){
         String redisKey = commentCache.getVideoCommentsKey(videoId,page,pageSize);
         Pageable paginateSettings = PageRequest.of(page,pageSize, Sort.by("datePublished").descending());
         return commentCache.getFromCacheOrFetch(redisKey, new TypeReference<PageWrapper<Comment>>() {},
-                () -> new PageWrapper<>(this.commentRepository.findByVideoIdAndIsBannedFalse(videoId,paginateSettings)));
+                () -> new PageWrapper<>(this.commentRepository.findByVideoIdAndIsBannedFalseAndParentCommentIdIsNull(videoId,paginateSettings)));
     }
+
+    @Override
+    public PageWrapper<Comment> getCommentReplies(String parentCommentId, int page, int pageSize) {
+        String redisKey = commentCache.getCommentRepliesKey(parentCommentId,page,pageSize);
+        Pageable paginate = PageRequest.of(page,pageSize,Sort.by("datePublished").descending());
+        return commentCache.getFromCacheOrFetch(redisKey, new TypeReference<PageWrapper<Comment>>() {},
+                () -> new PageWrapper<>(this.commentRepository.findByParentCommentIdAndIsBannedFalse(parentCommentId,paginate)));
+    }
+
 
 }
