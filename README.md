@@ -61,7 +61,7 @@ Developed with Spring Boot, this service is responsible for storing metadata of 
 It also acts as the source of the *video_uploaded* event.
 
 When a user uploads a new video, this service handles the storage of the raw *.mp4* file and then publishes its metadata via **Apache Kafka**.
-This event-driven approach enables the [Video-Processor](#video-processor) and [Thumbnail-Generaotr](#thumbnail-generator) services to initiate their respective tasks.
+This event-driven approach enables the [Video-Processor](#video-processor) and [Thumbnail-Generator](#thumbnail-generator) services to initiate their respective tasks.
 
 Additionally, Video-Manager generates video-related notifications, such as when video processing is completed, which are then sent via Kafka to the [Notification-Service](#notification-service)
 
