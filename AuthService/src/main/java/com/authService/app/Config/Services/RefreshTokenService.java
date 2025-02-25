@@ -22,7 +22,7 @@ public class RefreshTokenService {
         RefreshToken refreshToken = RefreshToken.builder()
                 .accountId(userId)
                 .fingerprint(fingerprint)
-                .expirationDate(Instant.now().plusSeconds(604800))//one week expiration - 604 800 seconds
+                .expirationDate(Instant.now().plusSeconds(604800))//one week
                 .token(UUID.randomUUID().toString())
                 .build();
         return refreshTokenRepository.save(refreshToken);
